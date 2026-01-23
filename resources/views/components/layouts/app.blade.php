@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
-    <title>Shop</title>
+    <title>Little Yarn Shop</title>
 
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
+
 <body class="antialiased">
 
-    <header class="p-4 border-b flex justify-end">
-        <livewire:cart-badge />
-    </header>
+    @include('partials.header')
 
     <main class="p-6">
         {{ $slot }}
@@ -18,4 +19,5 @@
 
     @livewireScripts
 </body>
+
 </html>
