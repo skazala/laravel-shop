@@ -15,24 +15,21 @@ class Products extends Component
         'cart-updated' => 'loadProducts',
     ];
 
-    public function mount(): void
+    public function mount(CartService $cartService): void
     {
-        $this->loadProducts();
+        $this->loadProducts($cartService);
     }
 
-    public function loadProducts(): void
+    public function loadProducts(CartService $cartService): void
     {
         $products = Product::query()
             ->select('id', 'name', 'price', 'stock_quantity')
             ->get();
 
-        $cartItems = Auth::check()
-            ? Auth::user()
-                ->cart
-                ?->items()
-                ->pluck('quantity', 'product_id')
-                ->toArray()
-            : [];
+        $cartItems = collect($cartService->getItems())
+            ->groupBy(fn($item) => $item['product']->id)
+            ->map(fn($items) => $items->sum('quantity'))
+            ->toArray();
 
         $this->products = $products->map(function ($product) use ($cartItems) {
             $inCart = $cartItems[$product->id] ?? 0;
@@ -53,36 +50,15 @@ class Products extends Component
 
     public function addToCart(int $productId): void
     {
-        if (! Auth::check()) {
-            $this->redirectRoute('login');
-            return;
-        }
-
         try {
-            app(CartService::class)->add($productId, Auth::user());
+            app(CartService::class)->add($productId);
 
-            $this->updateLocalAvailability($productId);
             $this->dispatch('cart-updated');
 
             session()->flash('success', 'Product added to cart');
         } catch (\Illuminate\Validation\ValidationException $e) {
             session()->flash('error', $e->getMessage());
         }
-    }
-
-    protected function updateLocalAvailability(int $productId): void
-    {
-        $this->products = array_map(function ($product) use ($productId) {
-            if ($product['id'] === $productId) {
-                $product['in_cart']++;
-                $product['available_quantity'] = max(
-                    0,
-                    $product['stock_quantity'] - $product['in_cart']
-                );
-            }
-
-            return $product;
-        }, $this->products);
     }
 
     public function render()

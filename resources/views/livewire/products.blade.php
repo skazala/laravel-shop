@@ -13,8 +13,7 @@
 
             Price: {{ $product['price'] }}$<br>
 
-            Available:
-            {{ $product['available_quantity'] }}<br>
+            Available: {{ $product['available_quantity'] }}<br>
 
             @if ($product['in_cart'] > 0)
                 <span class="text-sm text-gray-600">
@@ -22,14 +21,15 @@
                 </span><br>
             @endif
 
-            @auth
-                <button wire:click="addToCart({{ $product['id'] }})" class="mt-2 px-3 py-1 border"
-                    @disabled($product['available_quantity'] === 0)>
-                    Add to cart
-                </button>
-            @else
-                <a href="/login">Login to buy</a>
-            @endauth
+            <button wire:click="addToCart({{ $product['id'] }})"
+                class="mt-2 px-3 py-1 border
+           disabled:opacity-50
+           disabled:cursor-not-allowed
+           disabled:bg-gray-100
+           disabled:text-gray-400"
+                @disabled($product['available_quantity'] === 0)>
+                Add to cart
+            </button>
 
             <hr class="mt-4">
         </div>

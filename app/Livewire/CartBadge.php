@@ -13,13 +13,12 @@ class CartBadge extends Component
     #[Computed]
     public function count(): int
     {
-        $user = Auth::user();
-
-        if (! $user || ! $user->cart) {
-            return 0;
+        if (Auth::check()) {
+            return Auth::user()
+                ->cart?->items()->sum('quantity') ?? 0;
         }
 
-        return $user->cart->items->sum('quantity');
+        return collect(session('cart', []))->sum();
     }
 
     public function render()
