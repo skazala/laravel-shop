@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', Products::class)->name('products');
 
-Route::middleware('auth')->get('/cart', Cart::class)->name('cart');
+Route::get('/cart', Cart::class)->name('cart');
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
