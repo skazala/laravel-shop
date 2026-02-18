@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CheckoutController;
 use App\Livewire\Products;
 use App\Livewire\Cart;
 use Illuminate\Support\Facades\Route;
@@ -16,4 +17,8 @@ Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
 
-require __DIR__.'/auth.php';
+Route::post('/checkout', [CheckoutController::class, 'checkout'])
+    ->middleware('auth')
+    ->name('checkout');
+
+require __DIR__ . '/auth.php';
