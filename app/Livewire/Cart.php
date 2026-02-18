@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Services\CartService;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class Cart extends Component
@@ -49,5 +50,16 @@ class Cart extends Component
     public function render()
     {
         return view('livewire.cart');
+    }
+
+    public function checkout()
+    {
+        if (!Auth::check()) {
+            session(['url.intended' => route('cart')]);
+            
+            return redirect()->guest(route('login'));
+        }
+
+        $this->dispatch('submit-checkout');
     }
 }

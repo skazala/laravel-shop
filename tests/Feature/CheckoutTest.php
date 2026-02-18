@@ -43,4 +43,44 @@ class CheckoutTest extends TestCase
             'cart_id' => $cart->id,
         ]);
     }
+
+    public function test_guest_can_checkout_after_login(): void
+    {
+        $product = Product::factory()->create([
+            'stock_quantity' => 10,
+            'price' => 100,
+        ]);
+
+        $this->withSession([
+            'cart' => [
+                $product->id => 2,
+            ],
+        ]);
+
+        $response = $this->post(route('checkout'));
+        $response->assertRedirect(route('login'));
+
+        $user = User::factory()->create([
+            'password' => bcrypt('password'),
+        ]);
+
+        $this->post(route('login'), [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $this->post(route('checkout'));
+
+        $this->assertDatabaseHas('orders', [
+            'user_id' => $user->id,
+            'total_price' => 200,
+        ]);
+
+        $this->assertDatabaseHas('order_items', [
+            'product_id' => $product->id,
+            'quantity' => 2,
+        ]);
+
+        $this->assertEmpty(session('cart'));
+    }
 }
