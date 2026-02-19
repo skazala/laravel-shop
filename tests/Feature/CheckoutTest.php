@@ -2,17 +2,19 @@
 
 namespace Tests\Feature;
 
-use App\Models\Product;
+use Tests\TestCase;
 use App\Models\User;
+use App\Models\Order;
+use App\Models\Product;
+use Stripe\Checkout\Session;
 use App\Services\CheckoutService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 
 class CheckoutTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_user_can_checkout_cart(): void
+    public function test_user_can_start_stripe_checkout(): void
     {
         $user = User::factory()->create();
         $product = Product::factory()->create([
@@ -26,12 +28,49 @@ class CheckoutTest extends TestCase
             'quantity' => 2,
         ]);
 
-        $service = app(CheckoutService::class);
-        $service->checkout($user);
+        $this->mock(CheckoutService::class, function ($mock) {
+            $mock->shouldReceive('startStripeCheckout')
+                ->once()
+                ->andReturn('https://stripe.test/checkout');
+        });
+
+        $response = $this->actingAs($user)->post(route('checkout'));
+
+        $response->assertRedirect('https://stripe.test/checkout');
+
+        $this->assertDatabaseCount('orders', 0);
+        $this->assertDatabaseCount('order_items', 0);
+    }
+
+    public function test_stripe_webhook_creates_order_and_clears_cart(): void
+    {
+        $user = User::factory()->create();
+        $product = Product::factory()->create([
+            'stock_quantity' => 10,
+            'price' => 100,
+        ]);
+
+        $cart = $user->cart()->create();
+        $cart->items()->create([
+            'product_id' => $product->id,
+            'quantity' => 2,
+        ]);
+
+        $payload = [
+            'stripe_session_id' => 'cs_test_123',
+            'payment_intent' => 'pi_test_123',
+            'amount_total' => 20000,
+            'currency' => 'usd',
+            'client_reference_id' => $user->id,
+        ];
+
+        app(CheckoutService::class)->finalizePaidOrder($payload);
 
         $this->assertDatabaseHas('orders', [
             'user_id' => $user->id,
             'total_price' => 200,
+            'stripe_session_id' => 'cs_test_123',
+            'status' => 'paid',
         ]);
 
         $this->assertDatabaseHas('order_items', [
@@ -42,45 +81,32 @@ class CheckoutTest extends TestCase
         $this->assertDatabaseMissing('cart_items', [
             'cart_id' => $cart->id,
         ]);
+
+        $this->assertEquals(
+            8,
+            $product->fresh()->stock_quantity
+        );
     }
 
-    public function test_guest_can_checkout_after_login(): void
+    public function test_webhook_is_idempotent(): void
     {
-        $product = Product::factory()->create([
-            'stock_quantity' => 10,
-            'price' => 100,
-        ]);
+        $user = User::factory()->create();
 
-        $this->withSession([
-            'cart' => [
-                $product->id => 2,
-            ],
-        ]);
-
-        $response = $this->post(route('checkout'));
-        $response->assertRedirect(route('login'));
-
-        $user = User::factory()->create([
-            'password' => bcrypt('password'),
-        ]);
-
-        $this->post(route('login'), [
-            'email' => $user->email,
-            'password' => 'password',
-        ]);
-
-        $this->post(route('checkout'));
-
-        $this->assertDatabaseHas('orders', [
+        Order::factory()->create([
             'user_id' => $user->id,
-            'total_price' => 200,
+            'stripe_session_id' => 'cs_test_123',
         ]);
 
-        $this->assertDatabaseHas('order_items', [
-            'product_id' => $product->id,
-            'quantity' => 2,
-        ]);
+        $payload = [
+            'stripe_session_id' => 'cs_test_123',
+            'payment_intent' => 'pi_test_123',
+            'amount_total' => 20000,
+            'currency' => 'usd',
+            'user_id' => $user->id,
+        ];
 
-        $this->assertEmpty(session('cart'));
+        app(CheckoutService::class)->finalizePaidOrder($payload);
+
+        $this->assertEquals(1, Order::count());
     }
 }

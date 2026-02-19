@@ -10,9 +10,8 @@ class CheckoutController extends Controller
 {
     public function checkout(CheckoutService $checkoutService)
     {
-        $checkoutService->checkout(Auth::user());
+        $url = $checkoutService->startStripeCheckout(Auth::user());
 
-        return redirect()->route('products')
-            ->with('success', 'Order placed successfully!');
+        return redirect()->away($url);
     }
 }

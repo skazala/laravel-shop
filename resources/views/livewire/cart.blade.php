@@ -26,10 +26,6 @@
             @endforeach
         </ul>
 
-        <form id="checkout-form" method="POST" action="{{ route('checkout') }}" class="hidden">
-            @csrf
-        </form>
-
         <div class="mt-4 flex items-center gap-4">
             <button wire:click="checkout" class="px-4 py-2 border">
                 Checkout
@@ -40,8 +36,3 @@
     @endif
 </div>
 
-<script>
-    document.addEventListener('submit-checkout', () => {
-        document.getElementById('checkout-form').submit();
-    });
-</script>

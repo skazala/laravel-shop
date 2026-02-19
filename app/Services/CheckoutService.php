@@ -2,35 +2,78 @@
 
 namespace App\Services;
 
-use App\Exceptions\InsufficientStockException;
-use App\Jobs\LowStockJob;
-use App\Models\Order;
-use App\Models\OrderItem;
-use App\Models\Product;
 use App\Models\User;
+use App\OrderStatus;
+use App\Models\Order;
+use App\Models\Product;
+use Stripe\StripeClient;
+use App\Jobs\LowStockJob;
+use App\Models\OrderItem;
+use Stripe\Checkout\Session;
 use Illuminate\Support\Facades\DB;
+use App\Exceptions\InsufficientStockException;
 
 class CheckoutService
 {
     private const LOW_STOCK_THRESHOLD = 5;
 
-    public function checkout(User $user): void
+    public function startStripeCheckout(User $user): string
     {
-        $cart = $user->cart()
-            ->with('items.product')
-            ->firstOrFail();
+        $cart = $user->cart()->with('items.product')->firstOrFail();
 
         if ($cart->items->isEmpty()) {
             throw new \LogicException('Cannot checkout an empty cart.');
         }
 
-        DB::transaction(function () use ($cart, $user) {
+        $stripe = new StripeClient(config('services.stripe.secret'));
+
+        $lineItems = $cart->items->map(function ($item) {
+            return [
+                'price_data' => [
+                    'currency' => 'usd',
+                    'product_data' => [
+                        'name' => $item->product->name,
+                    ],
+                    'unit_amount' => (int) ($item->product->price * 100),
+                ],
+                'quantity' => $item->quantity,
+            ];
+        })->toArray();
+
+        $session = $stripe->checkout->sessions->create([
+            'mode' => 'payment',
+            'line_items' => $lineItems,
+            'success_url' => route('checkout.success') . '?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url' => route('cart'),
+            'client_reference_id' => $user->id,
+        ]);
+
+        return $session->url;
+    }
+
+    public function finalizePaidOrder(array $data): void
+    {
+        if (Order::where('stripe_session_id', $data['stripe_session_id'])->exists()) {
+            return;
+        }
+
+        $userId = (int) $data['user_id'];
+        $user = User::findOrFail($userId);
+
+        DB::transaction(function () use ($user, $data) {
+            $cart = $user->cart()
+                ->with('items.product')
+                ->firstOrFail();
+
+            if ($cart->items->isEmpty()) {
+                return;
+            }
+
             $total = 0;
             $lockedProducts = [];
 
             foreach ($cart->items as $item) {
-                $product = Product::lockForUpdate()
-                    ->findOrFail($item->product_id);
+                $product = Product::lockForUpdate()->findOrFail($item->product_id);
 
                 if ($item->quantity > $product->stock_quantity) {
                     throw new InsufficientStockException(
@@ -45,6 +88,11 @@ class CheckoutService
             $order = Order::create([
                 'user_id' => $user->id,
                 'total_price' => $total,
+                'status' => OrderStatus::Paid,
+                'stripe_session_id' => $data['stripe_session_id'],
+                'stripe_payment_intent_id' => $data['payment_intent'],
+                'stripe_amount_total' => $data['amount_total'],
+                'currency' => $data['currency'],
             ]);
 
             foreach ($cart->items as $item) {
