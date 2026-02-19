@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Services\CartService;
+use App\Services\CheckoutService;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
@@ -56,10 +57,13 @@ class Cart extends Component
     {
         if (!Auth::check()) {
             session(['url.intended' => route('cart')]);
-            
+
             return redirect()->guest(route('login'));
         }
 
-        $this->dispatch('submit-checkout');
+        $url = app(CheckoutService::class)
+        ->startStripeCheckout(Auth::user());
+
+        return redirect()->away($url);
     }
 }
