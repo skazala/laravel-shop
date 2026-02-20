@@ -3,9 +3,9 @@
 namespace App\Livewire;
 
 use App\Models\Product;
-use Livewire\Component;
 use App\Services\CartService;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
 
 class Products extends Component
 {
@@ -26,32 +26,35 @@ class Products extends Component
             ->select('id', 'name', 'price', 'stock_quantity')
             ->get();
 
-        $cartItems = collect($cartService->getItems())
-            ->groupBy(fn($item) => $item['product']->id)
-            ->map(fn($items) => $items->sum('quantity'))
+        $quantitiesInCart = $cartService->quantitiesByProductId();
+
+        $this->products = $products
+            ->map(fn(Product $product) => $this->mapProduct(
+                $product,
+                $quantitiesInCart[$product->id] ?? 0
+            ))
             ->toArray();
+    }
 
-        $this->products = $products->map(function ($product) use ($cartItems) {
-            $inCart = $cartItems[$product->id] ?? 0;
-
-            return [
-                'id' => $product->id,
-                'name' => $product->name,
-                'price' => $product->price,
-                'stock_quantity' => $product->stock_quantity,
-                'in_cart' => $inCart,
-                'available_quantity' => max(
-                    0,
-                    $product->stock_quantity - $inCart
-                ),
-            ];
-        })->toArray();
+    protected function mapProduct(Product $product, int $inCart): array
+    {
+        return [
+            'id' => $product->id,
+            'name' => $product->name,
+            'price' => $product->price,
+            'stock_quantity' => $product->stock_quantity,
+            'in_cart' => $inCart,
+            'available_quantity' => max(
+                0,
+                $product->stock_quantity - $inCart
+            ),
+        ];
     }
 
     public function addToCart(int $productId): void
     {
         try {
-            app(CartService::class)->add($productId);
+            app(CartService::class)->add($productId, Auth::user());
 
             $this->dispatch('cart-updated');
 
