@@ -6,9 +6,9 @@ use Tests\TestCase;
 use App\Models\User;
 use App\Models\Order;
 use App\Models\Product;
-use Stripe\Checkout\Session;
 use App\Services\CheckoutService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 
 class CheckoutTest extends TestCase
 {
@@ -61,7 +61,7 @@ class CheckoutTest extends TestCase
             'payment_intent' => 'pi_test_123',
             'amount_total' => 20000,
             'currency' => 'usd',
-            'client_reference_id' => $user->id,
+            'user_id' => $user->id,
         ];
 
         app(CheckoutService::class)->finalizePaidOrder($payload);
@@ -108,5 +108,23 @@ class CheckoutTest extends TestCase
         app(CheckoutService::class)->finalizePaidOrder($payload);
 
         $this->assertEquals(1, Order::count());
+    }
+
+    public function test_checkout_success_redirects_to_products_when_order_exists(): void
+    {
+        $user = User::factory()->create();
+
+        Order::factory()->create([
+            'user_id' => $user->id,
+            'stripe_session_id' => 'cs_test_123',
+            'status' => 'paid',
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(\App\Livewire\CheckoutSuccess::class, [
+                'sessionId' => 'cs_test_123',
+            ])
+            ->call('checkOrder')
+            ->assertRedirect(route('products'));
     }
 }
