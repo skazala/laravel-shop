@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\DTO\CartItemDTO;
 use App\Services\CartService;
 use App\Services\CheckoutService;
 use Illuminate\Support\Facades\Auth;
@@ -9,7 +10,10 @@ use Livewire\Component;
 
 class Cart extends Component
 {
+    /** @var CartItemDTO[] */
     public array $items = [];
+
+    /** @var array<string,int> */
     public array $quantities = [];
 
     public function mount(): void
@@ -24,7 +28,12 @@ class Cart extends Component
 
     protected function loadCart(): void
     {
-        $this->items = $this->cartService()->getItems();
+        $items = $this->cartService()->getItems();
+
+        $this->items = array_map(
+            fn(CartItemDTO $item) => $item->toArray(),
+            $items
+        );
 
         $this->quantities = [];
         foreach ($this->items as $item) {
@@ -32,7 +41,7 @@ class Cart extends Component
         }
     }
 
-    public function updatedQuantities($value, $key): void
+    public function updatedQuantities($value, string $key): void
     {
         $this->cartService()->updateQuantity($key, (int) $value);
 
@@ -61,8 +70,7 @@ class Cart extends Component
             return redirect()->guest(route('login'));
         }
 
-        $url = app(CheckoutService::class)
-        ->startStripeCheckout(Auth::user());
+        $url = app(CheckoutService::class)->startStripeCheckout(Auth::user());
 
         return redirect()->away($url);
     }

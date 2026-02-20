@@ -12,7 +12,7 @@
                         {{ $item['name'] }}
                     </span>
 
-                    <input type="number" min="1" max="{{ $item['max'] }}" class="w-20 border px-2 py-1"
+                    <input type="number" min="1" max="{{ $item['maxQuantity'] }}" class="w-20 border px-2 py-1"
                         x-model.number="quantity" />
 
                     <span class="w-24">
