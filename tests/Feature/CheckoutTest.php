@@ -127,4 +127,22 @@ class CheckoutTest extends TestCase
             ->call('checkOrder')
             ->assertRedirect(route('products'));
     }
+
+    public function test_checkout_with_empty_cart_redirects_back_with_error(): void
+    {
+        $user = User::factory()->create();
+
+        $user->cart()->create();
+
+        $this->mock(CheckoutService::class, function ($mock) {
+            $mock->shouldReceive('startStripeCheckout')
+                ->once()
+                ->andReturn(null);
+        });
+
+        $response = $this->actingAs($user)->post(route('checkout'));
+
+        $response->assertRedirect(route('cart'));
+        $response->assertSessionHas('error', 'Your cart is empty.');
+    }
 }
