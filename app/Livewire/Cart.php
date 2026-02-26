@@ -72,6 +72,12 @@ class Cart extends Component
 
         $url = app(CheckoutService::class)->startStripeCheckout(Auth::user());
 
+        if (!$url) {
+            session()->flash('error', 'Your cart is empty.');
+
+            return redirect()->route('cart');
+        }
+
         return redirect()->away($url);
     }
 }

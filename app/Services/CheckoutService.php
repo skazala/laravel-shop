@@ -6,26 +6,32 @@ use App\Models\User;
 use App\OrderStatus;
 use App\Models\Order;
 use App\Models\Product;
-use Stripe\StripeClient;
 use App\Jobs\LowStockJob;
 use App\Models\OrderItem;
-use Stripe\Checkout\Session;
+use App\Contracts\PaymentGateway;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Exceptions\InsufficientStockException;
 
 class CheckoutService
 {
     private const LOW_STOCK_THRESHOLD = 5;
 
-    public function startStripeCheckout(User $user): string
+    public function __construct(
+        private PaymentGateway $paymentGateway
+    ) {}
+
+    public function startStripeCheckout(User $user): ?string
     {
         $cart = $user->cart()->with('items.product')->firstOrFail();
 
         if ($cart->items->isEmpty()) {
-            throw new \LogicException('Cannot checkout an empty cart.');
-        }
+            Log::critical('Attempted checkout with empty cart', [
+                'user_id' => $user->id,
+            ]);
 
-        $stripe = new StripeClient(config('services.stripe.secret'));
+            return null;
+        }
 
         $lineItems = $cart->items->map(function ($item) {
             return [
@@ -40,15 +46,12 @@ class CheckoutService
             ];
         })->toArray();
 
-        $session = $stripe->checkout->sessions->create([
-            'mode' => 'payment',
-            'line_items' => $lineItems,
-            'success_url' => route('checkout.success') . '?session_id={CHECKOUT_SESSION_ID}',
-            'cancel_url' => route('cart'),
-            'client_reference_id' => $user->id,
-        ]);
-
-        return $session->url;
+        return $this->paymentGateway->createCheckoutSession(
+            $user,
+            $lineItems,
+            route('checkout.success') . '?session_id={CHECKOUT_SESSION_ID}',
+            route('cart')
+        );
     }
 
     public function finalizePaidOrder(array $data): void
