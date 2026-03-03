@@ -3,10 +3,10 @@
 namespace App\Providers;
 
 use App\Listeners\MergeCartAfterRegistration;
-use Illuminate\Auth\Events\Login;
-use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use App\Listeners\MergeSessionCartAfterLogin;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -16,6 +16,6 @@ class EventServiceProvider extends ServiceProvider
         ],
         Registered::class => [
             MergeCartAfterRegistration::class,
-        ]
+        ],
     ];
 }

@@ -14,7 +14,9 @@ use Illuminate\Validation\ValidationException;
 class CartService
 {
     private const SESSION_CART_KEY = 'cart';
+
     private const TYPE_SESSION = 'session';
+
     private const TYPE_USER = 'user';
 
     public function add(int $productId, ?User $user = null): void
@@ -120,12 +122,12 @@ class CartService
     {
         $cart = $user->cart()->with('items.product')->first();
 
-        if (!$cart) {
+        if (! $cart) {
             return [];
         }
 
         return $cart->items
-            ->map(fn($item) => CartItemDTO::forUserItem(
+            ->map(fn ($item) => CartItemDTO::forUserItem(
                 cartItemId: $item->id,
                 product: $item->product,
                 quantity: $item->quantity,
@@ -168,7 +170,7 @@ class CartService
 
         if (Auth::check()) {
             $item = CartItem::where('id', $key)
-                ->whereHas('cart', fn($q) => $q->where('user_id', Auth::id()))
+                ->whereHas('cart', fn ($q) => $q->where('user_id', Auth::id()))
                 ->with('product')
                 ->firstOrFail();
             $quantity = min($quantity, $item->product->stock_quantity);
@@ -189,16 +191,16 @@ class CartService
     protected function parseKey(string $key): array
     {
         if (str_starts_with($key, 'session-')) {
-            return ['type' => Self::TYPE_SESSION, 'id' => (int) substr($key, 8)];
+            return ['type' => self::TYPE_SESSION, 'id' => (int) substr($key, 8)];
         }
 
-        return ['type' => Self::TYPE_USER, 'id' => (int) $key];
+        return ['type' => self::TYPE_USER, 'id' => (int) $key];
     }
 
     protected function removeForUser(int $cartItemId, User $user): void
     {
         CartItem::where('id', $cartItemId)
-            ->whereHas('cart', fn($q) => $q->where('user_id', $user->id))
+            ->whereHas('cart', fn ($q) => $q->where('user_id', $user->id))
             ->delete();
     }
 
@@ -241,7 +243,7 @@ class CartService
                 ->keyBy('id');
 
             foreach ($sessionCart as $productId => $qtyFromSession) {
-                if (!isset($products[$productId])) {
+                if (! isset($products[$productId])) {
                     continue;
                 }
 
@@ -277,12 +279,12 @@ class CartService
     public function quantitiesByProductId(): array
     {
         return collect($this->getItems())
-            ->map(fn(CartItemDTO $item) => [
+            ->map(fn (CartItemDTO $item) => [
                 'product_id' => $item->product->id,
                 'quantity' => $item->quantity,
             ])
             ->groupBy('product_id')
-            ->map(fn($items) => $items->sum('quantity'))
+            ->map(fn ($items) => $items->sum('quantity'))
             ->toArray();
     }
 }

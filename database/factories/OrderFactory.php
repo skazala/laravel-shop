@@ -17,8 +17,8 @@ class OrderFactory extends Factory
             'user_id' => User::factory(),
             'total_price' => 200,
             'status' => OrderStatus::Paid,
-            'stripe_session_id' => 'cs_test_' . $this->faker->uuid,
-            'stripe_payment_intent_id' => 'pi_test_' . $this->faker->uuid,
+            'stripe_session_id' => 'cs_test_'.$this->faker->uuid,
+            'stripe_payment_intent_id' => 'pi_test_'.$this->faker->uuid,
             'stripe_amount_total' => 20000,
             'currency' => 'usd',
         ];

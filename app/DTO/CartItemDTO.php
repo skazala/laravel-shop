@@ -36,7 +36,7 @@ final class CartItemDTO
         int $quantity
     ): self {
         return new self(
-            key: 'session-' . $productId,
+            key: 'session-'.$productId,
             product: $product,
             name: $product->name,
             price: $product->price,
