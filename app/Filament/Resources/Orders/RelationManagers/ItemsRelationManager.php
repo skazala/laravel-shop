@@ -11,6 +11,7 @@ use Filament\Actions\DissociateAction;
 use Filament\Actions\DissociateBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -26,9 +27,10 @@ class ItemsRelationManager extends RelationManager
     {
         return $schema
             ->components([
-                TextInput::make('product_id')
+                Select::make('product_id')
+                    ->relationship('product', 'name')
                     ->required()
-                    ->numeric(),
+                    ->searchable(),
                 TextInput::make('quantity')
                     ->required()
                     ->numeric(),
@@ -45,6 +47,8 @@ class ItemsRelationManager extends RelationManager
             ->components([
                 TextEntry::make('product_id')
                     ->numeric(),
+                TextEntry::make('product.name')
+                    ->label('Product'),
                 TextEntry::make('quantity')
                     ->numeric(),
                 TextEntry::make('price')
@@ -64,7 +68,12 @@ class ItemsRelationManager extends RelationManager
             ->recordTitleAttribute('id')
             ->columns([
                 TextColumn::make('product_id')
+                    ->label('ID')
                     ->numeric()
+                    ->sortable(),
+                TextColumn::make('product.name')
+                    ->label('Name')
+                    ->searchable()
                     ->sortable(),
                 TextColumn::make('quantity')
                     ->numeric()
