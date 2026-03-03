@@ -31,7 +31,7 @@ class Cart extends Component
         $items = $this->cartService()->getItems();
 
         $this->items = array_map(
-            fn(CartItemDTO $item) => $item->toArray(),
+            fn (CartItemDTO $item) => $item->toArray(),
             $items
         );
 
@@ -64,7 +64,7 @@ class Cart extends Component
 
     public function checkout()
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             session(['url.intended' => route('cart')]);
 
             return redirect()->guest(route('login'));
@@ -72,7 +72,7 @@ class Cart extends Component
 
         $url = app(CheckoutService::class)->startStripeCheckout(Auth::user());
 
-        if (!$url) {
+        if (! $url) {
             session()->flash('error', 'Your cart is empty.');
 
             return redirect()->route('cart');

@@ -2,10 +2,10 @@
 
 namespace App\Providers;
 
-use Stripe\StripeClient;
 use App\Contracts\PaymentGateway;
 use App\Payments\StripePaymentGateway;
 use Illuminate\Support\ServiceProvider;
+use Stripe\StripeClient;
 
 class AppServiceProvider extends ServiceProvider
 {

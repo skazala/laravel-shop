@@ -2,9 +2,9 @@
 
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\StripeWebhookController;
+use App\Livewire\Cart;
 use App\Livewire\CheckoutSuccess;
 use App\Livewire\Products;
-use App\Livewire\Cart;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', Products::class)->name('products');
@@ -26,4 +26,4 @@ Route::view('profile', 'profile')
 
 Route::post('/stripe/webhook', StripeWebhookController::class);
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';

@@ -2,9 +2,9 @@
 
 namespace App\Payments;
 
-use Stripe\StripeClient;
 use App\Contracts\PaymentGateway;
 use App\Models\User;
+use Stripe\StripeClient;
 
 class StripePaymentGateway implements PaymentGateway
 {

@@ -8,7 +8,9 @@ use Livewire\Component;
 class CheckoutSuccess extends Component
 {
     public string $sessionId = '';
+
     public int $attempts = 0;
+
     public int $maxAttempts = 15;
 
     protected $queryString = [

@@ -11,7 +11,7 @@ class CheckoutController extends Controller
     {
         $url = $checkoutService->startStripeCheckout(Auth::user());
 
-        if (!$url) {
+        if (! $url) {
             return redirect()->route('cart')
                 ->with('error', 'Your cart is empty.');
         }

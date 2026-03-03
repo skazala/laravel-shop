@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Services\CheckoutService;
 use Illuminate\Http\Request;
-use Stripe\Webhook;
 use Stripe\Exception\SignatureVerificationException;
+use Stripe\Webhook;
 use UnexpectedValueException;
 
 class StripeWebhookController
@@ -18,7 +18,7 @@ class StripeWebhookController
                 $request->header('Stripe-Signature'),
                 config('services.stripe.webhook_secret')
             );
-        } catch (SignatureVerificationException | UnexpectedValueException $e) {
+        } catch (SignatureVerificationException|UnexpectedValueException $e) {
             return response()->json(['error' => 'Invalid webhook'], 400);
         }
 

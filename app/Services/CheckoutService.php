@@ -2,16 +2,16 @@
 
 namespace App\Services;
 
+use App\Contracts\PaymentGateway;
+use App\Exceptions\InsufficientStockException;
+use App\Jobs\LowStockJob;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Product;
 use App\Models\User;
 use App\OrderStatus;
-use App\Models\Order;
-use App\Models\Product;
-use App\Jobs\LowStockJob;
-use App\Models\OrderItem;
-use App\Contracts\PaymentGateway;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Exceptions\InsufficientStockException;
 
 class CheckoutService
 {
@@ -49,7 +49,7 @@ class CheckoutService
         return $this->paymentGateway->createCheckoutSession(
             $user,
             $lineItems,
-            route('checkout.success') . '?session_id={CHECKOUT_SESSION_ID}',
+            route('checkout.success').'?session_id={CHECKOUT_SESSION_ID}',
             route('cart')
         );
     }

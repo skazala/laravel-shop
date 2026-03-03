@@ -2,13 +2,13 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\User;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\User;
 use App\Services\CheckoutService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
+use Tests\TestCase;
 
 class CheckoutTest extends TestCase
 {

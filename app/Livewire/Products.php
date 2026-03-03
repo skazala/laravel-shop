@@ -29,7 +29,7 @@ class Products extends Component
         $quantitiesInCart = $cartService->quantitiesByProductId();
 
         $this->products = $products
-            ->map(fn(Product $product) => $this->mapProduct(
+            ->map(fn (Product $product) => $this->mapProduct(
                 $product,
                 $quantitiesInCart[$product->id] ?? 0
             ))
