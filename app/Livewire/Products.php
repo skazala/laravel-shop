@@ -6,50 +6,15 @@ use App\Models\Product;
 use App\Services\CartService;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class Products extends Component
 {
-    public array $products = [];
+    use WithPagination;
 
     protected $listeners = [
-        'cart-updated' => 'loadProducts',
+        'cart-updated' => '$refresh',
     ];
-
-    public function mount(CartService $cartService): void
-    {
-        $this->loadProducts($cartService);
-    }
-
-    public function loadProducts(CartService $cartService): void
-    {
-        $products = Product::query()
-            ->select('id', 'name', 'price', 'stock_quantity')
-            ->get();
-
-        $quantitiesInCart = $cartService->quantitiesByProductId();
-
-        $this->products = $products
-            ->map(fn (Product $product) => $this->mapProduct(
-                $product,
-                $quantitiesInCart[$product->id] ?? 0
-            ))
-            ->toArray();
-    }
-
-    protected function mapProduct(Product $product, int $inCart): array
-    {
-        return [
-            'id' => $product->id,
-            'name' => $product->name,
-            'price' => $product->price,
-            'stock_quantity' => $product->stock_quantity,
-            'in_cart' => $inCart,
-            'available_quantity' => max(
-                0,
-                $product->stock_quantity - $inCart
-            ),
-        ];
-    }
 
     public function addToCart(int $productId): void
     {
@@ -64,8 +29,26 @@ class Products extends Component
         }
     }
 
-    public function render()
+    public function render(CartService $cartService)
     {
-        return view('livewire.products');
+        $products = Product::query()
+            ->select('id', 'name', 'price', 'stock_quantity')
+            ->paginate(10);
+
+        $quantitiesInCart = $cartService->quantitiesByProductId();
+
+        $products->getCollection()->transform(function (Product $product) use ($quantitiesInCart) {
+            $inCart = $quantitiesInCart[$product->id] ?? 0;
+
+            $product->in_cart = $inCart;
+            $product->available_quantity = max(
+                0,
+                $product->stock_quantity - $inCart
+            );
+
+            return $product;
+        });
+
+        return view('livewire.products', compact('products'));
     }
 }
