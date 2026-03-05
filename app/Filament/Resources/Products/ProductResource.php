@@ -40,6 +40,11 @@ class ProductResource extends Resource
                     ->searchable()
                     ->sortable(),
 
+                TextColumn::make('category.name')
+                    ->label('Category')
+                    ->searchable()
+                    ->sortable(),
+
                 TextColumn::make('price')
                     ->label('Price')
                     ->money('USD')

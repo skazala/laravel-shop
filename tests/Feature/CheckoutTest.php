@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Category;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
@@ -17,7 +18,10 @@ class CheckoutTest extends TestCase
     public function test_user_can_start_stripe_checkout(): void
     {
         $user = User::factory()->create();
+        $category = Category::factory()->create();
+
         $product = Product::factory()->create([
+            'category_id' => $category->id,
             'stock_quantity' => 10,
             'price' => 100,
         ]);
@@ -45,7 +49,9 @@ class CheckoutTest extends TestCase
     public function test_stripe_webhook_creates_order_and_clears_cart(): void
     {
         $user = User::factory()->create();
+        $category = Category::factory()->create();
         $product = Product::factory()->create([
+            'category_id' => $category->id,
             'stock_quantity' => 10,
             'price' => 100,
         ]);

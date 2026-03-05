@@ -12,9 +12,21 @@ class Products extends Component
 {
     use WithPagination;
 
+    public ?string $category = null;
+
     protected $listeners = [
         'cart-updated' => '$refresh',
     ];
+
+    public function mount()
+    {
+        $this->category = request()->query('category');
+    }
+
+    public function updatingCategory()
+    {
+        $this->resetPage();
+    }
 
     public function addToCart(int $productId): void
     {
@@ -31,9 +43,10 @@ class Products extends Component
 
     public function render(CartService $cartService)
     {
-        $products = Product::query()
-            ->select('id', 'name', 'price', 'stock_quantity')
-            ->paginate(10);
+        $query = Product::query()
+            ->when($this->category, fn ($q) => $q->whereHas('category', fn ($q2) => $q2->where('slug', $this->category)));
+
+        $products = $query->paginate(10);
 
         $quantitiesInCart = $cartService->quantitiesByProductId();
 
