@@ -15,7 +15,10 @@ class DatabaseSeeder extends Seeder
     {
         User::factory()->create([
             'email' => 'rasskazala@gmail.com',
+            'name' => 'admin',
         ]);
+
+        $this->call(CategorySeeder::class);
 
         Product::factory()->count(20)->create();
     }
