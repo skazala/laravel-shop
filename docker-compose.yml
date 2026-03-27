@@ -1,0 +1,53 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: app
+    volumes:
+      - .:/var/www:cached
+      - /var/www/vendor
+      - /var/www/storage
+    environment:
+      APP_ENV: ${APP_ENV}
+      APP_DEBUG: ${APP_DEBUG}
+      APP_KEY: ${APP_KEY}
+    networks:
+      - laravel
+
+  webserver:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "8000:80"
+    volumes:
+      - ./app:/var/www/app:cached
+      - ./routes:/var/www/routes:cached
+      - ./resources:/var/www/resources:cached
+      - ./public:/var/www/public:cached
+      - ./docker/nginx:/etc/nginx/conf.d
+    depends_on:
+      - app
+    networks:
+      - laravel
+
+  db:
+    image: postgres:15
+    container_name: db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - laravel
+
+networks:
+  laravel:
+
+volumes:
+  pgdata:

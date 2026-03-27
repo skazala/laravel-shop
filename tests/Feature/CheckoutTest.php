@@ -38,7 +38,9 @@ class CheckoutTest extends TestCase
                 ->andReturn('https://stripe.test/checkout');
         });
 
-        $response = $this->actingAs($user)->post(route('checkout'));
+        $response = $this->actingAs($user)
+            ->withoutMiddleware()
+            ->post(route('checkout'));
 
         $response->assertRedirect('https://stripe.test/checkout');
 
@@ -146,7 +148,9 @@ class CheckoutTest extends TestCase
                 ->andReturn(null);
         });
 
-        $response = $this->actingAs($user)->post(route('checkout'));
+        $response = $this->actingAs($user)
+            ->withoutMiddleware()
+            ->post(route('checkout'));
 
         $response->assertRedirect(route('cart'));
         $response->assertSessionHas('error', 'Your cart is empty.');
