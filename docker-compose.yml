@@ -6,12 +6,31 @@ services:
     container_name: app
     volumes:
       - .:/var/www:cached
-      - /var/www/vendor
-      - /var/www/storage
+      - ./storage:/var/www/storage
+      - ./vendor:/var/www/vendor
     environment:
       APP_ENV: ${APP_ENV}
       APP_DEBUG: ${APP_DEBUG}
       APP_KEY: ${APP_KEY}
+    depends_on:
+      - db
+      - redis
+    networks:
+      - laravel
+
+  horizon:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: horizon
+    command: php artisan horizon
+    volumes:
+      - .:/var/www:cached
+      - ./vendor:/var/www/vendor
+      - ./storage:/var/www/storage
+    depends_on:
+      - app
+      - redis
     networks:
       - laravel
 
@@ -21,10 +40,7 @@ services:
     ports:
       - "8000:80"
     volumes:
-      - ./app:/var/www/app:cached
-      - ./routes:/var/www/routes:cached
-      - ./resources:/var/www/resources:cached
-      - ./public:/var/www/public:cached
+      - .:/var/www:cached
       - ./docker/nginx:/etc/nginx/conf.d
     depends_on:
       - app
@@ -43,6 +59,14 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - laravel
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
     networks:
       - laravel
 

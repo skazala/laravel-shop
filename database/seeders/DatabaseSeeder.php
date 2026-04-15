@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\Product;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -16,10 +16,11 @@ class DatabaseSeeder extends Seeder
         User::factory()->create([
             'email' => 'rasskazala@gmail.com',
             'name' => 'admin',
+            'password' => Hash::make(env('ADMIN_PASSWORD')),
         ]);
 
         $this->call(CategorySeeder::class);
 
-        Product::factory()->count(20)->create();
+        $this->call(ProductSeeder::class);
     }
 }
