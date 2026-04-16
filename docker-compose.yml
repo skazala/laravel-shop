@@ -6,8 +6,7 @@ services:
     container_name: app
     volumes:
       - .:/var/www:cached
-      - ./storage:/var/www/storage
-      - ./vendor:/var/www/vendor
+      - /var/www/vendor
     environment:
       APP_ENV: ${APP_ENV}
       APP_DEBUG: ${APP_DEBUG}
@@ -26,8 +25,7 @@ services:
     command: php artisan horizon
     volumes:
       - .:/var/www:cached
-      - ./vendor:/var/www/vendor
-      - ./storage:/var/www/storage
+      - /var/www/vendor
     depends_on:
       - app
       - redis
