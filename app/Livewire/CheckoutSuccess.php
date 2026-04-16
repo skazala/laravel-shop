@@ -33,7 +33,7 @@ class CheckoutSuccess extends Component
                     'Payment successful! Your order has been created.'
                 );
 
-                return redirect()->route('products');
+                return redirect()->route('orders');
             }
         }
 
@@ -43,7 +43,7 @@ class CheckoutSuccess extends Component
                 'Payment succeeded, but order processing took longer than expected.'
             );
 
-            return redirect()->route('products');
+            return redirect()->route('orders');
         }
     }
 

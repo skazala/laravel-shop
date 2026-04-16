@@ -4,6 +4,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\StripeWebhookController;
 use App\Livewire\Cart;
 use App\Livewire\CheckoutSuccess;
+use App\Livewire\Orders;
 use App\Livewire\Products;
 use Illuminate\Support\Facades\Route;
 
@@ -13,6 +14,7 @@ Route::get('/cart', Cart::class)->name('cart');
 Route::middleware('auth')->group(function () {
     Route::post('/checkout', [CheckoutController::class, 'checkout'])
         ->name('checkout');
+    Route::get('/orders', Orders::class)->name('orders');
 });
 Route::get('/checkout/success', CheckoutSuccess::class)
     ->name('checkout.success');

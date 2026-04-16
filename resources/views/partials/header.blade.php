@@ -10,6 +10,12 @@
             </a>
 
             <livewire:cart-badge />
+
+            @auth
+                | <a href="{{ route('orders') }}" class="text-sm text-gray-700 hover:text-gray-900">
+                    My Orders
+                </a>
+            @endauth
         </div>
 
         <div class="flex gap-2 items-center">
