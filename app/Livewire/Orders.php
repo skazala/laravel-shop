@@ -2,19 +2,22 @@
 
 namespace App\Livewire;
 
+use App\Contracts\Repositories\OrderRepositoryInterface;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class Orders extends Component
 {
+    protected OrderRepositoryInterface $orderRepo;
+
+    public function boot(OrderRepositoryInterface $orderRepo)
+    {
+        $this->orderRepo = $orderRepo;
+    }
+
     public function render()
     {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-        $orders = $user->orders()
-            ->with('items.product')
-            ->latest()
-            ->get();
+        $orders = $this->orderRepo->allForUser(Auth::user());
 
         return view('livewire.orders', compact('orders'));
     }

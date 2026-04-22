@@ -3,10 +3,10 @@
 namespace App\Services;
 
 use App\Contracts\PaymentGateway;
+use App\Contracts\Repositories\OrderItemRepositoryInterface;
+use App\Contracts\Repositories\OrderRepositoryInterface;
 use App\Exceptions\InsufficientStockException;
 use App\Jobs\LowStockJob;
-use App\Models\Order;
-use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\User;
 use App\OrderStatus;
@@ -18,8 +18,11 @@ class CheckoutService
     private const LOW_STOCK_THRESHOLD = 5;
 
     public function __construct(
-        private PaymentGateway $paymentGateway
-    ) {}
+        private PaymentGateway $paymentGateway,
+        private OrderRepositoryInterface $orderRepo,
+        private OrderItemRepositoryInterface $orderItemRepo,
+    ) {
+    }
 
     public function startStripeCheckout(User $user): ?string
     {
@@ -56,7 +59,7 @@ class CheckoutService
 
     public function finalizePaidOrder(array $data): void
     {
-        if (Order::where('stripe_session_id', $data['stripe_session_id'])->exists()) {
+        if ($this->orderRepo->existsByStripeSessionId($data['stripe_session_id'])) {
             return;
         }
 
@@ -88,25 +91,25 @@ class CheckoutService
                 $lockedProducts[$product->id] = $product;
             }
 
-            $order = Order::create([
-                'user_id' => $user->id,
-                'total_price' => $total,
-                'status' => OrderStatus::Paid,
-                'stripe_session_id' => $data['stripe_session_id'],
-                'stripe_payment_intent_id' => $data['payment_intent'],
-                'stripe_amount_total' => $data['amount_total'],
-                'currency' => $data['currency'],
+            $order = $this->orderRepo->create([
+                'user_id'                   => $user->id,
+                'total_price'               => $total,
+                'status'                    => OrderStatus::Paid,
+                'stripe_session_id'         => $data['stripe_session_id'],
+                'stripe_payment_intent_id'  => $data['payment_intent'],
+                'stripe_amount_total'       => $data['amount_total'],
+                'currency'                  => $data['currency'],
             ]);
 
             foreach ($cart->items as $item) {
                 $product = $lockedProducts[$item->product_id];
 
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'product_id' => $product->id,
-                    'quantity' => $item->quantity,
-                    'price' => $product->price,
-                ]);
+                $this->orderItemRepo->createForOrder(
+                    $order,
+                    $item->product_id,
+                    $item->quantity,
+                    $product->price
+                );
 
                 $product->decrement('stock_quantity', $item->quantity);
 
