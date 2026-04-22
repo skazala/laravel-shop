@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Contracts\Repositories\ProductRepositoryInterface;
 use App\Models\Product;
 use App\Services\CartService;
 use Illuminate\Support\Facades\Auth;
@@ -14,9 +15,16 @@ class Products extends Component
 
     public ?string $category = null;
 
+    protected ProductRepositoryInterface $productRepo;
+
     protected $listeners = [
         'cart-updated' => '$refresh',
     ];
+
+    public function boot(ProductRepositoryInterface $productRepo)
+    {
+        $this->productRepo = $productRepo;
+    }
 
     public function mount()
     {
@@ -46,7 +54,7 @@ class Products extends Component
         $query = Product::query()
             ->when($this->category, fn ($q) => $q->whereHas('category', fn ($q2) => $q2->where('slug', $this->category)));
 
-        $products = $query->paginate(10);
+        $products = $this->productRepo->paginateByCategory($this->category);
 
         $quantitiesInCart = $cartService->quantitiesByProductId();
 
