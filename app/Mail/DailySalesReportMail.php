@@ -11,17 +11,12 @@ use Illuminate\Support\Collection;
 
 class DailySalesReportMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable;
+    use SerializesModels;
 
     public function __construct(
         public Collection $items
-    ) {}
-
-    public function build()
-    {
-        return $this
-            ->subject('Daily Sales Report')
-            ->markdown('emails.daily-sales-report');
+    ) {
     }
 
     /**
