@@ -7,6 +7,7 @@ use App\Contracts\Repositories\OrderItemRepositoryInterface;
 use App\Contracts\Repositories\OrderRepositoryInterface;
 use App\Exceptions\InsufficientStockException;
 use App\Jobs\LowStockJob;
+use App\Jobs\OrderConfirmationJob;
 use App\Models\Product;
 use App\Models\User;
 use App\OrderStatus;
@@ -119,6 +120,8 @@ class CheckoutService
             }
 
             $cart->items()->delete();
+
+            OrderConfirmationJob::dispatch($order)->afterCommit();
         });
     }
 }
