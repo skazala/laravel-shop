@@ -5,6 +5,7 @@ namespace Tests\Unit\Services;
 use App\Contracts\PaymentGateway;
 use App\Contracts\Repositories\OrderItemRepositoryInterface;
 use App\Contracts\Repositories\OrderRepositoryInterface;
+use App\DTO\FinalizeOrderDTO;
 use App\Exceptions\InsufficientStockException;
 use App\Jobs\LowStockJob;
 use App\Models\Category;
@@ -20,6 +21,17 @@ use Tests\TestCase;
 class CheckoutServiceTest extends TestCase
 {
     use RefreshDatabase;
+
+    private function makeDto(array $overrides = []): FinalizeOrderDTO
+    {
+        return new FinalizeOrderDTO(
+            stripeSessionId: $overrides['stripe_session_id'] ?? 'cs_test_123',
+            paymentIntent:   $overrides['payment_intent']   ?? 'pi_test_123',
+            amountTotal:     $overrides['amount_total']     ?? 20000,
+            currency:        $overrides['currency']         ?? 'usd',
+            userId:          $overrides['user_id']          ?? 1,
+        );
+    }
 
     public function test_finalize_returns_early_if_session_already_exists(): void
     {
@@ -42,13 +54,10 @@ class CheckoutServiceTest extends TestCase
             Mockery::mock(OrderItemRepositoryInterface::class),
         );
 
-        $service->finalizePaidOrder([
+        $service->finalizePaidOrder($this->makeDto([
             'stripe_session_id' => 'cs_test_123',
-            'payment_intent'    => 'pi_test_123',
-            'amount_total'      => 20000,
-            'currency'          => 'usd',
-            'user_id'           => $user->id,
-        ]);
+            'user_id' => $user->id,
+        ]));
 
         $this->assertEquals(1, Order::count());
     }
@@ -69,13 +78,11 @@ class CheckoutServiceTest extends TestCase
             'quantity'   => 2,
         ]);
 
-        app(CheckoutService::class)->finalizePaidOrder([
+        app(CheckoutService::class)->finalizePaidOrder($this->makeDto([
             'stripe_session_id' => 'cs_test_456',
             'payment_intent'    => 'pi_test_456',
-            'amount_total'      => 20000,
-            'currency'          => 'usd',
             'user_id'           => $user->id,
-        ]);
+        ]));
 
         $this->assertDatabaseHas('orders', [
             'user_id'           => $user->id,
@@ -114,13 +121,12 @@ class CheckoutServiceTest extends TestCase
 
         $this->expectException(InsufficientStockException::class);
 
-        app(CheckoutService::class)->finalizePaidOrder([
+        app(CheckoutService::class)->finalizePaidOrder($this->makeDto([
             'stripe_session_id' => 'cs_test_789',
             'payment_intent'    => 'pi_test_789',
             'amount_total'      => 500,
-            'currency'          => 'usd',
             'user_id'           => $user->id,
-        ]);
+        ]));
     }
 
     public function test_low_stock_job_is_dispatched_when_stock_drops_below_threshold(): void
@@ -141,13 +147,12 @@ class CheckoutServiceTest extends TestCase
             'quantity'   => 1,
         ]);
 
-        app(CheckoutService::class)->finalizePaidOrder([
+        app(CheckoutService::class)->finalizePaidOrder($this->makeDto([
             'stripe_session_id' => 'cs_test_low',
             'payment_intent'    => 'pi_test_low',
             'amount_total'      => 100,
-            'currency'          => 'usd',
             'user_id'           => $user->id,
-        ]);
+        ]));
 
         Queue::assertPushed(LowStockJob::class);
     }
