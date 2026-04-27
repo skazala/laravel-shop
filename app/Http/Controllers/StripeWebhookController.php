@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DTO\FinalizeOrderDTO;
 use App\Services\CheckoutService;
 use Illuminate\Http\Request;
 use Stripe\Exception\SignatureVerificationException;
@@ -25,13 +26,9 @@ class StripeWebhookController
         if ($event->type === 'checkout.session.completed') {
             $session = $event->data->object;
 
-            $checkout->finalizePaidOrder([
-                'stripe_session_id' => $session->id,
-                'payment_intent' => $session->payment_intent,
-                'amount_total' => $session->amount_total,
-                'currency' => $session->currency,
-                'user_id' => (int) $session->client_reference_id,
-            ]);
+            $checkout->finalizePaidOrder(
+                FinalizeOrderDTO::fromStripeWebhook($session),
+            );
         }
 
         return response()->json(['ok' => true]);

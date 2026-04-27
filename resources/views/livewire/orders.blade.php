@@ -19,16 +19,16 @@
             <div class="flex items-center justify-between bg-gray-50 px-5 py-3">
                 <div class="text-sm text-gray-600">
                     <span class="font-medium text-gray-900">Order #{{ $order->id }}</span>
-                    &mdash; {{ $order->created_at->format('M j, Y') }}
+                    &mdash; {{ $order->createdAt }}
                 </div>
                 <div class="flex items-center gap-4">
                     <span class="text-sm font-medium">
-                        ${{ number_format($order->total_price, 2) }}
+                        ${{ number_format($order->totalPrice, 2) }}
                     </span>
                     <span
                         class="px-2 py-0.5 rounded-full text-xs font-semibold
-                        {{ $order->status->value === 'paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }}">
-                        {{ ucfirst($order->status->value) }}
+                        {{ $order->status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }}">
+                        {{ ucfirst($order->status) }}
                     </span>
                 </div>
             </div>
@@ -38,11 +38,11 @@
                 @foreach ($order->items as $item)
                     <li class="flex items-center justify-between px-5 py-3 text-sm">
                         <span class="text-gray-800">
-                            {{ $item->product->name }}
+                            {{ $item->productName }}
                             <span class="text-gray-400">&times; {{ $item->quantity }}</span>
                         </span>
                         <span class="text-gray-700">
-                            ${{ number_format($item->price * $item->quantity, 2) }}
+                            ${{ number_format($item->subtotal(), 2) }}
                         </span>
                     </li>
                 @endforeach

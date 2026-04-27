@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Contracts\Repositories\OrderRepositoryInterface;
+use App\DTO\OrderSummaryDTO;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
@@ -17,7 +18,9 @@ class Orders extends Component
 
     public function render()
     {
-        $orders = $this->orderRepo->allForUser(Auth::user());
+        $orders = $this->orderRepo
+            ->allForUser(Auth::user())
+            ->map(fn ($order) => OrderSummaryDTO::fromModel($order));
 
         return view('livewire.orders', compact('orders'));
     }

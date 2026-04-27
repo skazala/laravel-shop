@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Contracts\PaymentGateway;
 use App\Contracts\Repositories\OrderItemRepositoryInterface;
 use App\Contracts\Repositories\OrderRepositoryInterface;
+use App\DTO\FinalizeOrderDTO;
 use App\Exceptions\InsufficientStockException;
 use App\Jobs\LowStockJob;
 use App\Jobs\OrderConfirmationJob;
@@ -58,16 +59,15 @@ class CheckoutService
         );
     }
 
-    public function finalizePaidOrder(array $data): void
+    public function finalizePaidOrder(FinalizeOrderDTO $dto): void
     {
-        if ($this->orderRepo->existsByStripeSessionId($data['stripe_session_id'])) {
+        if ($this->orderRepo->existsByStripeSessionId($dto->stripeSessionId)) {
             return;
         }
 
-        $userId = (int) $data['user_id'];
-        $user = User::findOrFail($userId);
+        $user = User::findOrFail($dto->userId);
 
-        DB::transaction(function () use ($user, $data) {
+        DB::transaction(function () use ($user, $dto) {
             $cart = $user->cart()
                 ->with('items.product')
                 ->firstOrFail();
@@ -96,10 +96,10 @@ class CheckoutService
                 'user_id'                   => $user->id,
                 'total_price'               => $total,
                 'status'                    => OrderStatus::Paid,
-                'stripe_session_id'         => $data['stripe_session_id'],
-                'stripe_payment_intent_id'  => $data['payment_intent'],
-                'stripe_amount_total'       => $data['amount_total'],
-                'currency'                  => $data['currency'],
+                'stripe_session_id'         => $dto->stripeSessionId,
+                'stripe_payment_intent_id'  => $dto->paymentIntent,
+                'stripe_amount_total'       => $dto->amountTotal,
+                'currency'                  => $dto->currency,
             ]);
 
             foreach ($cart->items as $item) {
