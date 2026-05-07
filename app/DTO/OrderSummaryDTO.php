@@ -3,13 +3,14 @@
 namespace App\DTO;
 
 use App\Models\Order;
+use App\OrderStatus;
 use Illuminate\Support\Collection;
 
 final class OrderSummaryDTO
 {
     public function __construct(
         public readonly int $id,
-        public readonly string $status,
+        public readonly OrderStatus $status,
         public readonly float $totalPrice,
         public readonly string $currency,
         public readonly string $createdAt,
@@ -21,7 +22,7 @@ final class OrderSummaryDTO
     {
         return new self(
             id: $order->id,
-            status: $order->status->value,
+            status: $order->status,
             totalPrice: (float) $order->total_price,
             currency: $order->currency,
             createdAt: $order->created_at->format('M j, Y'),

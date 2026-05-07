@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Orders\Schemas;
 
+use App\OrderStatus;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
@@ -28,10 +29,12 @@ class OrderForm
                 Select::make('status')
                     ->required()
                     ->options([
-                        'pending' => 'Pending',
-                        'paid' => 'Paid',
-                        'cancelled' => 'Cancelled',
-                        'failed' => 'Failed',
+                        'pending' => ucfirst(OrderStatus::Pending->value),
+                        'paid' => ucfirst(OrderStatus::Paid->value),
+                        'cancelled' => ucfirst(OrderStatus::Cancelled->value),
+                        'failed' => ucfirst(OrderStatus::Failed->value),
+                        'shipped' => ucfirst(OrderStatus::Shipped->value),
+                        'delivered' => ucfirst(OrderStatus::Delivered->value),
                     ])
                     ->default('pending'),
             ]);

@@ -42,6 +42,10 @@ class UserResource extends Resource
                     ->searchable()
                     ->sortable(),
 
+                TextColumn::make('is_admin')
+                    ->label('Admin')
+                    ->sortable(),
+
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable(),

@@ -9,31 +9,22 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class OrderConfirmationMail extends Mailable
+class OrderShippedMail extends Mailable
 {
     use Queueable;
     use SerializesModels;
 
-    public function __construct(public Order $order)
+    public function __construct(public readonly Order $order)
     {
     }
 
     public function envelope(): Envelope
     {
-        return new Envelope(
-            subject: 'Order Confirmation #' . $this->order->id,
-        );
+        return new Envelope(subject: 'Your order #' . $this->order->id . ' has been shipped!');
     }
 
     public function content(): Content
     {
-        return new Content(
-            markdown: 'emails.orders.confirmed',
-        );
-    }
-
-    public function attachments(): array
-    {
-        return [];
+        return new Content(markdown: 'emails.orders.shipped');
     }
 }
