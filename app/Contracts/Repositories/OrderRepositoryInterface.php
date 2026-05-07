@@ -4,6 +4,7 @@ namespace App\Contracts\Repositories;
 
 use App\Models\Order;
 use App\Models\User;
+use App\OrderStatus;
 use Illuminate\Database\Eloquent\Collection;
 
 interface OrderRepositoryInterface
@@ -11,4 +12,5 @@ interface OrderRepositoryInterface
     public function allForUser(User $user): Collection;
     public function existsByStripeSessionId(string $sessionId): bool;
     public function create(array $data): Order;
+    public function updateStatus(Order $order, OrderStatus $status): void;
 }

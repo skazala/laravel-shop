@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Contracts\Repositories\OrderRepositoryInterface;
 use App\Models\Order;
 use App\Models\User;
+use App\OrderStatus;
 use Illuminate\Database\Eloquent\Collection;
 
 class OrderRepository implements OrderRepositoryInterface
@@ -25,5 +26,10 @@ class OrderRepository implements OrderRepositoryInterface
     public function create(array $data): Order
     {
         return Order::create($data);
+    }
+
+    public function updateStatus(Order $order, OrderStatus $status): void
+    {
+        $order->update(['status' => $status]);
     }
 }
