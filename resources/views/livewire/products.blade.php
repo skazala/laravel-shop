@@ -9,28 +9,42 @@
 
     @forelse ($products as $product)
         <div class="mb-6">
-            <strong>{{ $product->name }}</strong><br>
+            <div class="flex items-center justify-between">
+                <strong>
+                    <a href="{{ route('products.show', $product->id) }}" class="hover:underline text-gray-900">
+                        {{ $product->name }}
+                    </a>
+                </strong>
+                @php $avg = $product->averageRating(); @endphp
+                @if ($avg)
+                    <span class="text-yellow-400 text-sm">
+                        @for ($i = 1; $i <= 5; $i++)
+                            {{ $i <= round($avg) ? '★' : '☆' }}
+                        @endfor
+                        <span class="text-gray-500 text-xs ml-1">{{ $avg }}</span>
+                    </span>
+                @endif
+            </div>
 
             Price: {{ number_format($product->price, 2) }}$<br>
-
             Available: {{ $product->available_quantity }}<br>
 
             @if ($product->in_cart > 0)
-                <span class="text-sm text-gray-600">
-                    In cart: {{ $product->in_cart }}
-                </span><br>
+                <span class="text-sm text-gray-600">In cart: {{ $product->in_cart }}</span><br>
             @endif
 
-            <button wire:click="addToCart({{ $product->id }})"
-                class="mt-2 px-3 py-1 border
-                       disabled:opacity-50
-                       disabled:cursor-not-allowed
-                       disabled:bg-gray-100
-                       disabled:text-gray-400"
-                @disabled($product->available_quantity === 0)>
-                Add to cart
-            </button>
+            <div class="mt-2 flex gap-2">
+                <button wire:click="addToCart({{ $product->id }})"
+                    class="px-3 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400"
+                    @disabled($product->available_quantity === 0)>
+                    Add to cart
+                </button>
 
+                <button onclick="window.location='{{ route('products.show', $product->id) }}'"
+                    class="px-3 py-1 border rounded text-gray-700 hover:bg-gray-50 transition cursor-pointer">
+                    View
+                </button>
+            </div>
             <hr class="mt-4">
         </div>
     @empty

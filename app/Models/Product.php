@@ -15,4 +15,28 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function averageRating(): ?float
+    {
+        $avg = $this->reviews()->avg('rating');
+        return $avg ? round($avg, 1) : null;
+    }
+
+    public function wasPurchasedBy(int $userId): bool
+    {
+        return OrderItem::query()
+            ->where('product_id', $this->id)
+            ->whereHas(
+                'order',
+                fn ($q) => $q
+                ->where('user_id', $userId)
+                ->whereIn('status', ['paid', 'shipped', 'delivered'])
+            )
+            ->exists();
+    }
 }
