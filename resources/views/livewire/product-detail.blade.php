@@ -30,11 +30,14 @@
             {{ $product->stock_quantity > 0 ? $product->stock_quantity . ' in stock' : 'Out of stock' }}
         </div>
 
-        <button wire:click="addToCart"
-            class="mt-4 px-4 py-2 border rounded disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400"
-            @disabled($product->stock_quantity === 0)>
-            Add to cart
-        </button>
+        <div class="mt-4 flex items-center gap-3">
+            <button wire:click="addToCart"
+                class="px-4 py-2 border rounded disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400"
+                @disabled($product->stock_quantity === 0)>
+                Add to cart
+            </button>
+            <livewire:wishlist-button :productId="$product->id" :key="'wish-detail-' . $product->id" />
+        </div>
 
         @if (session('success'))
             <p class="mt-2 text-sm text-green-600">{{ session('success') }}</p>

@@ -33,17 +33,17 @@
                 <span class="text-sm text-gray-600">In cart: {{ $product->in_cart }}</span><br>
             @endif
 
-            <div class="mt-2 flex gap-2">
+            <div class="mt-2 flex items-center gap-2">
                 <button wire:click="addToCart({{ $product->id }})"
-                    class="px-3 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400"
+                    class="px-3 py-1 border disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400"
                     @disabled($product->available_quantity === 0)>
                     Add to cart
                 </button>
-
                 <button onclick="window.location='{{ route('products.show', $product->id) }}'"
-                    class="px-3 py-1 border rounded text-gray-700 hover:bg-gray-50 transition cursor-pointer">
+                    class="px-3 py-1 border rounded text-sm text-gray-700 hover:bg-gray-50 transition cursor-pointer">
                     View
                 </button>
+                <livewire:wishlist-button :productId="$product->id" :key="'wish-' . $product->id" />
             </div>
             <hr class="mt-4">
         </div>

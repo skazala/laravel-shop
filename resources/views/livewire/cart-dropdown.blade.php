@@ -9,18 +9,17 @@
         @endif
     </a>
 
-    {{-- Invisible bridge to prevent mouseleave gap --}}
-    <div class="absolute top-full left-0 h-2 w-80"></div>
-
     {{-- Dropdown popup --}}
     <div x-show="open" style="display:none"
-        class="absolute top-full left-0 z-50 mt-2 w-80 rounded-lg border border-gray-200 bg-white shadow-xl
+        class="absolute top-full left-0 z-50 w-80 rounded-lg border border-gray-200 bg-white shadow-xl
                transition-opacity duration-150"
         :class="open ? 'opacity-100' : 'opacity-0'">
+
+        <div class="h-2 w-full"></div>
+
         @if (empty($this->items))
             <p class="p-4 text-center text-sm text-gray-500">Your cart is empty.</p>
         @else
-            {{-- Scrollable item list --}}
             <ul class="max-h-72 divide-y divide-gray-100 overflow-y-auto">
                 @foreach ($this->items as $item)
                     <li class="flex items-center gap-3 px-4 py-3">
@@ -43,7 +42,6 @@
                 @endforeach
             </ul>
 
-            {{-- Total --}}
             <div class="flex justify-between border-t border-gray-200 px-4 py-2 text-sm font-semibold text-gray-800">
                 <span>Total</span>
                 <span>
@@ -52,7 +50,6 @@
                 </span>
             </div>
 
-            {{-- Action buttons --}}
             <div class="flex gap-2 border-t border-gray-200 p-3">
                 <button onclick="window.location='{{ route('cart') }}'"
                     class="flex-1 rounded-md border border-gray-300 px-3 py-2 text-center text-sm font-medium text-gray-700 hover:bg-gray-50 transition cursor-pointer">

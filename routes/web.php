@@ -7,6 +7,7 @@ use App\Livewire\CheckoutSuccess;
 use App\Livewire\Orders;
 use App\Livewire\ProductDetail;
 use App\Livewire\Products;
+use App\Livewire\WishlistPage;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', Products::class)->name('products');
@@ -17,6 +18,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/checkout', [CheckoutController::class, 'checkout'])
         ->name('checkout');
     Route::get('/orders', Orders::class)->name('orders');
+    Route::get('/wishlist', WishlistPage::class)->name('wishlist');
 });
 Route::get('/checkout/success', CheckoutSuccess::class)
     ->name('checkout.success');

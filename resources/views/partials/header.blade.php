@@ -12,6 +12,9 @@
                 | <a href="{{ route('orders') }}" class="text-sm text-gray-700 hover:text-gray-900">
                     My Orders
                 </a>
+                | <a href="{{ route('wishlist') }}" class="text-sm text-gray-700 hover:text-gray-900">
+                    My Wishlist
+                </a>
             @endauth
         </div>
         <div class="flex gap-2 items-center">

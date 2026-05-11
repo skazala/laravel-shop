@@ -39,4 +39,9 @@ class Product extends Model
             )
             ->exists();
     }
+
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
 }
