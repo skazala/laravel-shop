@@ -14,9 +14,10 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         User::factory()->create([
-            'email' => 'rasskazala@gmail.com',
+            'email' => env('ADMIN_EMAIL'),
             'name' => 'admin',
             'password' => Hash::make(env('ADMIN_PASSWORD')),
+            'is_admin' => true,
         ]);
 
         $this->call(CategorySeeder::class);
