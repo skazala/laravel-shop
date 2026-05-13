@@ -8,6 +8,8 @@ use App\Livewire\Orders;
 use App\Livewire\ProductDetail;
 use App\Livewire\Products;
 use App\Livewire\WishlistPage;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', Products::class)->name('products');
@@ -31,5 +33,20 @@ Route::view('profile', 'profile')
     ->name('profile');
 
 Route::post('/stripe/webhook', StripeWebhookController::class);
+
+if (app()->environment('local', 'testing')) {
+    Route::middleware('auth')->post('/test/add-to-cart/{product}', function (
+        \App\Models\Product $product,
+        \App\Services\CartService $cartService
+    ) {
+        $cartService->add($product->id, Auth::user());
+        return response()->json(['ok' => true]);
+    })->name('test.add-to-cart');
+    Route::post('/test/login', function (Request $request) {
+        $user = \App\Models\User::where('email', $request->email)->firstOrFail();
+        Auth::login($user);
+        return response()->json(['ok' => true]);
+    });
+}
 
 require __DIR__.'/auth.php';
