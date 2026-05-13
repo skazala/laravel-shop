@@ -22,7 +22,12 @@ class StressTestSeeder extends Seeder
 
         User::factory(200)
             ->create()
-            ->each(function ($user) use ($products) {
+            ->each(function ($user, $index) use ($products) {
+                $user->update([
+                    'email'    => 'user' . ($index + 1) . '@example.com',
+                    'password' => bcrypt('password'),
+                ]);
+
                 Order::factory(rand(1, 5))
                     ->create([
                         'user_id' => $user->id,
