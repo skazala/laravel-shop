@@ -51,9 +51,6 @@ class Products extends Component
 
     public function render(CartService $cartService)
     {
-        $query = Product::query()
-            ->when($this->category, fn ($q) => $q->whereHas('category', fn ($q2) => $q2->where('slug', $this->category)));
-
         $products = $this->productRepo->paginateByCategory($this->category);
 
         $quantitiesInCart = $cartService->quantitiesByProductId();

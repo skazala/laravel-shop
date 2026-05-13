@@ -4,9 +4,9 @@ namespace App\Livewire;
 
 use App\Models\Product;
 use App\Models\Review;
-use App\OrderStatus;
 use App\Services\CartService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Livewire\Component;
 
 class ProductDetail extends Component
@@ -22,7 +22,11 @@ class ProductDetail extends Component
 
     public function mount(int $id): void
     {
-        $this->product = Product::with(['reviews.user'])->findOrFail($id);
+        $this->product = Cache::remember(
+            "product.{$id}",
+            now()->addMinutes(5),
+            fn () => Product::with(['reviews.user'])->findOrFail($id)
+        );
 
         if (Auth::check()) {
             $this->hasReviewed = Review::where('user_id', Auth::id())
@@ -58,6 +62,8 @@ class ProductDetail extends Component
         $this->rating      = 0;
         $this->comment     = '';
         $this->reviewSuccess = 'Thank you! Your review has been submitted.';
+
+        Cache::forget("product.{$this->product->id}");
     }
 
     public function addToCart(): void
