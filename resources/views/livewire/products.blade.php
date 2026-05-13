@@ -15,7 +15,7 @@
                         {{ $product->name }}
                     </a>
                 </strong>
-                @php $avg = $product->averageRating(); @endphp
+                @php $avg = $product->reviews_avg_rating ? round($product->reviews_avg_rating, 1) : null; @endphp
                 @if ($avg)
                     <span class="text-yellow-400 text-sm">
                         @for ($i = 1; $i <= 5; $i++)
