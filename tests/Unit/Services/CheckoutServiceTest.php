@@ -14,6 +14,7 @@ use App\Models\Product;
 use App\Models\User;
 use App\Services\CheckoutService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Queue;
 use Mockery;
 use Tests\TestCase;
@@ -155,5 +156,61 @@ class CheckoutServiceTest extends TestCase
         ]));
 
         Queue::assertPushed(LowStockJob::class);
+    }
+
+    public function test_start_checkout_returns_cached_url_without_calling_stripe(): void
+    {
+        $user    = User::factory()->create();
+        $product = Product::factory()->for(Category::factory())->create([
+            'stock_quantity' => 5,
+            'price'          => 50,
+        ]);
+
+        $cart = $user->cart()->create();
+        $cart->items()->create([
+            'product_id' => $product->id,
+            'quantity'   => 1,
+        ]);
+
+        $cachedUrl = 'https://stripe.test/cached';
+        Cache::put("checkout_session_user_{$user->id}", $cachedUrl, now()->addMinutes(10));
+
+        $gateway = Mockery::mock(PaymentGateway::class);
+        $gateway->shouldNotReceive('createCheckoutSession');
+        $this->app->instance(PaymentGateway::class, $gateway);
+
+        $result = app(CheckoutService::class)->startStripeCheckout($user);
+
+        $this->assertEquals($cachedUrl, $result);
+    }
+
+    public function test_start_checkout_caches_url_after_stripe_session_created(): void
+    {
+        $user    = User::factory()->create();
+        $product = Product::factory()->for(Category::factory())->create([
+            'stock_quantity' => 5,
+            'price'          => 50,
+        ]);
+
+        $cart = $user->cart()->create();
+        $cart->items()->create([
+            'product_id' => $product->id,
+            'quantity'   => 1,
+        ]);
+
+        Cache::forget("checkout_session_user_{$user->id}");
+
+        $stripeUrl = 'https://stripe.test/new-session';
+
+        $gateway = Mockery::mock(PaymentGateway::class);
+        $gateway->shouldReceive('createCheckoutSession')
+            ->once()
+            ->andReturn($stripeUrl);
+        $this->app->instance(PaymentGateway::class, $gateway);
+
+        $result = app(CheckoutService::class)->startStripeCheckout($user);
+
+        $this->assertEquals($stripeUrl, $result);
+        $this->assertEquals($stripeUrl, Cache::get("checkout_session_user_{$user->id}"));
     }
 }

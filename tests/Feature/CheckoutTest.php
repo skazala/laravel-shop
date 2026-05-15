@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\User;
 use App\Services\CheckoutService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -84,5 +85,60 @@ class CheckoutTest extends TestCase
 
         $response->assertRedirect(route('cart'));
         $response->assertSessionHas('error', 'Your cart is empty.');
+    }
+
+    public function test_double_submission_returns_cached_stripe_url(): void
+    {
+        $user = User::factory()->create();
+
+        $cachedUrl = 'https://stripe.test/checkout/existing-session';
+        Cache::put("checkout_session_user_{$user->id}", $cachedUrl, now()->addMinutes(10));
+
+        $this->mock(CheckoutService::class, function ($mock) use ($cachedUrl) {
+            $mock->shouldReceive('startStripeCheckout')
+                ->once()
+                ->andReturn($cachedUrl);
+        });
+
+        $this->actingAs($user)
+            ->withoutMiddleware()
+            ->post(route('checkout'))
+            ->assertRedirect($cachedUrl);
+    }
+
+    public function test_cache_is_cleared_after_order_is_finalized(): void
+    {
+        $user = User::factory()->create();
+
+        Cache::put(
+            "checkout_session_user_{$user->id}",
+            'https://stripe.test/checkout/session',
+            now()->addMinutes(10)
+        );
+
+        $category = Category::factory()->create();
+        $product  = Product::factory()->create([
+            'category_id'    => $category->id,
+            'stock_quantity' => 10,
+            'price'          => 100,
+        ]);
+
+        $cart = $user->cart()->create();
+        $cart->items()->create([
+            'product_id' => $product->id,
+            'quantity'   => 1,
+        ]);
+
+        app(\App\Services\CheckoutService::class)->finalizePaidOrder(
+            new \App\DTO\FinalizeOrderDTO(
+                stripeSessionId: 'cs_test_clear',
+                paymentIntent:   'pi_test_clear',
+                amountTotal:     10000,
+                currency:        'usd',
+                userId:          $user->id,
+            )
+        );
+
+        $this->assertNull(Cache::get("checkout_session_user_{$user->id}"));
     }
 }
