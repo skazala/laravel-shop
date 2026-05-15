@@ -10,7 +10,8 @@ class StripePaymentGateway implements PaymentGateway
 {
     public function __construct(
         private StripeClient $stripe
-    ) {}
+    ) {
+    }
 
     public function createCheckoutSession(
         User $user,
@@ -24,6 +25,10 @@ class StripePaymentGateway implements PaymentGateway
             'success_url' => $successUrl,
             'cancel_url' => $cancelUrl,
             'client_reference_id' => $user->id,
+            'metadata'             => [
+                'user_id'    => $user->id,
+                'user_email' => $user->email,
+            ],
         ]);
 
         return $session->url;

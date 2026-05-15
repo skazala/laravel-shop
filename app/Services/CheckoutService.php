@@ -12,6 +12,7 @@ use App\Jobs\OrderConfirmationJob;
 use App\Models\Product;
 use App\Models\User;
 use App\OrderStatus;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -34,29 +35,34 @@ class CheckoutService
             Log::critical('Attempted checkout with empty cart', [
                 'user_id' => $user->id,
             ]);
-
             return null;
         }
 
-        $lineItems = $cart->items->map(function ($item) {
-            return [
-                'price_data' => [
-                    'currency' => 'usd',
-                    'product_data' => [
-                        'name' => $item->product->name,
-                    ],
-                    'unit_amount' => (int) ($item->product->price * 100),
-                ],
-                'quantity' => $item->quantity,
-            ];
-        })->toArray();
+        $cacheKey = "checkout_session_user_{$user->id}";
+        $existingUrl = Cache::get($cacheKey);
+        if ($existingUrl) {
+            return $existingUrl;
+        }
 
-        return $this->paymentGateway->createCheckoutSession(
+        $lineItems = $cart->items->map(fn ($item) => [
+            'price_data' => [
+                'currency'     => 'usd',
+                'product_data' => ['name' => $item->product->name],
+                'unit_amount'  => (int) ($item->product->price * 100),
+            ],
+            'quantity' => $item->quantity,
+        ])->toArray();
+
+        $url = $this->paymentGateway->createCheckoutSession(
             $user,
             $lineItems,
             route('checkout.success').'?session_id={CHECKOUT_SESSION_ID}',
             route('cart')
         );
+
+        Cache::put($cacheKey, $url, now()->addMinutes(10));
+
+        return $url;
     }
 
     public function finalizePaidOrder(FinalizeOrderDTO $dto): void
@@ -73,6 +79,11 @@ class CheckoutService
                 ->firstOrFail();
 
             if ($cart->items->isEmpty()) {
+                Log::warning('Webhook received for empty cart', [
+                    'user_id'    => $user->id,
+                    'session_id' => $dto->stripeSessionId,
+                ]);
+
                 return;
             }
 
@@ -121,6 +132,7 @@ class CheckoutService
 
             $cart->items()->delete();
 
+            Cache::forget("checkout_session_user_{$user->id}");
             OrderConfirmationJob::dispatch($order)->afterCommit();
         });
     }
