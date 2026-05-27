@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\Collection;
 
 interface OrderRepositoryInterface
 {
+    /**
+     * @return Collection<int, Order>
+     */
     public function allForUser(User $user): Collection;
     public function existsByStripeSessionId(string $sessionId): bool;
     public function create(array $data): Order;

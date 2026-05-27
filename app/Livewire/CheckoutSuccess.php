@@ -27,14 +27,12 @@ class CheckoutSuccess extends Component
         )->first();
 
         if ($order) {
-            if ($order) {
-                session()->flash(
-                    'success',
-                    'Payment successful! Your order has been created.'
-                );
+            session()->flash(
+                'success',
+                'Payment successful! Your order has been created.'
+            );
 
-                return redirect()->route('orders');
-            }
+            return redirect()->route('orders');
         }
 
         if ($this->attempts >= $this->maxAttempts) {

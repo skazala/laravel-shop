@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Contracts\Repositories\ProductRepositoryInterface;
+use App\DTO\ProductViewDTO;
 use App\Models\Product;
 use App\Services\CartService;
 use Illuminate\Support\Facades\Auth;
@@ -39,7 +40,9 @@ class Products extends Component
     public function addToCart(int $productId): void
     {
         try {
-            app(CartService::class)->add($productId, Auth::user());
+            $user = Auth::user();
+
+            app(CartService::class)->add($productId, $user);
 
             $this->dispatch('cart-updated');
 
@@ -49,24 +52,26 @@ class Products extends Component
         }
     }
 
-    public function render(CartService $cartService)
+    public function render(CartService $cartService): \Illuminate\View\View
     {
-        $products = $this->productRepo->paginateByCategory($this->category);
+        $paginated = $this->productRepo->paginateByCategory(
+            $this->category,
+            10,
+            $this->getPage()
+        );
 
-        $quantitiesInCart = $cartService->quantitiesByProductId();
+        $quantities = $cartService->quantitiesByProductId();
 
-        $products->getCollection()->transform(function (Product $product) use ($quantitiesInCart) {
-            $inCart = $quantitiesInCart[$product->id] ?? 0;
+        $paginated->getCollection()->transform(
+            fn (Product $p) => new ProductViewDTO(
+                $p,
+                $quantities[$p->id] ?? 0,
+                max(0, $p->stock_quantity - ($quantities[$p->id] ?? 0)),
+            )
+        );
 
-            $product->in_cart = $inCart;
-            $product->available_quantity = max(
-                0,
-                $product->stock_quantity - $inCart
-            );
-
-            return $product;
-        });
-
-        return view('livewire.products', compact('products'));
+        return view('livewire.products', [
+            'products' => $paginated
+        ]);
     }
 }
