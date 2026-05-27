@@ -10,10 +10,11 @@ final class CartItemDTO
         public readonly string $key,
         public readonly Product $product,
         public readonly string $name,
-        public readonly int $price,
+        public readonly float $price,
         public readonly int $quantity,
         public readonly int $maxQuantity,
-    ) {}
+    ) {
+    }
 
     public static function forUserItem(
         int $cartItemId,
@@ -45,7 +46,7 @@ final class CartItemDTO
         );
     }
 
-    public function total(): int
+    public function total(): float
     {
         return $this->price * $this->quantity;
     }

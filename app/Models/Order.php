@@ -5,7 +5,13 @@ namespace App\Models;
 use App\OrderStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, OrderItem> $items
+ * @property-read User $user
+ */
 class Order extends Model
 {
     use HasFactory;
@@ -25,12 +31,12 @@ class Order extends Model
         'total_price' => 'decimal:2',
     ];
 
-    public function items()
+    public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

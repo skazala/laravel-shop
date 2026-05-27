@@ -10,7 +10,6 @@ use Livewire\Component;
 
 class Cart extends Component
 {
-    /** @var CartItemDTO[] */
     public array $items = [];
 
     /** @var array<string,int> */
