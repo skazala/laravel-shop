@@ -34,6 +34,7 @@ class StressTestSeeder extends Seeder
                         'status'  => OrderStatus::Paid,
                     ])
                     ->each(function ($order) use ($products) {
+                        /** @var Order $order */
                         $sample = $products->random(rand(1, 4));
                         foreach ($sample as $product) {
                             OrderItem::factory()->create([

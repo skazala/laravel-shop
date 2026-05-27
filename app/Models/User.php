@@ -25,38 +25,26 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     use Notifiable;
     use TwoFactorAuthenticatable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
+    /** @var list<string> */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'is_admin',
-    ];
+            'name',
+            'email',
+            'password',
+            'is_admin',
+        ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
+    /** @var list<string> */
     protected $hidden = [
-        'password',
-        'remember_token',
-        'two_factor_recovery_codes',
-        'two_factor_secret',
-    ];
+            'password',
+            'remember_token',
+            'two_factor_recovery_codes',
+            'two_factor_secret',
+        ];
 
-    /**
-     * The accessors to append to the model's array form.
-     *
-     * @var array<int, string>
-     */
+    /** @var list<string> */
     protected $appends = [
-        'profile_photo_url',
-    ];
+            'profile_photo_url',
+        ];
 
     /**
      * Get the attributes that should be cast.
@@ -78,18 +66,24 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     }
 
     /**
-     * @return HasOne<Cart>
+     * @return HasOne<Cart, $this>
      */
     public function cart(): HasOne
     {
         return $this->hasOne(Cart::class)->withDefault();
     }
 
+    /**
+     * @return HasMany<Order, $this>
+     */
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
     }
 
+    /**
+     * @return HasMany<Wishlist, $this>
+     */
     public function wishlists(): HasMany
     {
         return $this->hasMany(Wishlist::class);

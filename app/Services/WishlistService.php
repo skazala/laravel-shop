@@ -44,6 +44,6 @@ class WishlistService
         return $user->wishlists()
             ->with('product.category')
             ->get()
-            ->map(fn ($w) => $w->product);
+            ->map(fn (Wishlist $w) => $w->product);
     }
 }

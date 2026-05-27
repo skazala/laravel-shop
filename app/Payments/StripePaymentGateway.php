@@ -24,9 +24,9 @@ class StripePaymentGateway implements PaymentGateway
             'line_items' => $items,
             'success_url' => $successUrl,
             'cancel_url' => $cancelUrl,
-            'client_reference_id' => $user->id,
+            'client_reference_id' => (string) $user->id,
             'metadata'             => [
-                'user_id'    => $user->id,
+                'user_id'    => (string) $user->id,
                 'user_email' => $user->email,
             ],
         ]);
