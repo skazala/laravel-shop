@@ -9,10 +9,14 @@ class MergeSessionCartAfterLogin
 {
     public function __construct(
         private CartService $cartService
-    ) {}
+    ) {
+    }
 
     public function handle(Login $event): void
     {
-        $this->cartService->mergeSessionIntoUserCart($event->user);
+        /** @var \App\Models\User $user */
+        $user = $event->user;
+
+        $this->cartService->mergeSessionIntoUserCart($user);
     }
 }

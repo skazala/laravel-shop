@@ -16,8 +16,9 @@ class CartDropdown extends Component
     public function count(): int
     {
         if (Auth::check()) {
-            return Auth::user()
-                ->cart?->items()->sum('quantity') ?? 0;
+            $cart = Auth::user()->cart;
+
+            return $cart ? $cart->items()->sum('quantity') : 0;
         }
 
         return collect(session('cart', []))->sum();
