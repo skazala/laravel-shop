@@ -27,6 +27,7 @@ class CartMergeTest extends TestCase
 
         $user = User::factory()->create();
 
+        /** @var Cart $cart */
         $cart = Cart::factory()->create([
             'user_id' => $user->id,
         ]);

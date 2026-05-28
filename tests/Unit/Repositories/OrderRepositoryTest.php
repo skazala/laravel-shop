@@ -39,7 +39,8 @@ class OrderRepositoryTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $first  = Order::factory()->create(['user_id' => $user->id, 'created_at' => now()->subDay()]);
+        Order::factory()->create(['user_id' => $user->id, 'created_at' => now()->subDay()]);
+        /** @var Order $second */
         $second = Order::factory()->create(['user_id' => $user->id, 'created_at' => now()]);
 
         $result = $this->repo->allForUser($user);

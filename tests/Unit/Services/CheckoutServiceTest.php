@@ -43,16 +43,21 @@ class CheckoutServiceTest extends TestCase
             'stripe_session_id' => 'cs_test_123',
         ]);
 
+        /** @var OrderRepositoryInterface&\Mockery\MockInterface $orderRepo */
         $orderRepo = Mockery::mock(OrderRepositoryInterface::class);
-        $orderRepo->expects('existsByStripeSessionId')
+        $orderRepo->shouldReceive('existsByStripeSessionId')
+            ->once()
             ->with('cs_test_123')
             ->andReturn(true);
         $orderRepo->shouldNotReceive('create');
 
+        /** @var OrderItemRepositoryInterface&\Mockery\MockInterface $orderItemRepo */
+        $orderItemRepo = Mockery::mock(OrderItemRepositoryInterface::class);
+
         $service = new CheckoutService(
             Mockery::mock(PaymentGateway::class),
             $orderRepo,
-            Mockery::mock(OrderItemRepositoryInterface::class),
+            $orderItemRepo,
         );
 
         $service->finalizePaidOrder($this->makeDto([
@@ -175,6 +180,7 @@ class CheckoutServiceTest extends TestCase
         $cachedUrl = 'https://stripe.test/cached';
         Cache::put("checkout_session_user_{$user->id}", $cachedUrl, now()->addMinutes(10));
 
+        /** @var PaymentGateway&\Mockery\MockInterface $gateway */
         $gateway = Mockery::mock(PaymentGateway::class);
         $gateway->shouldNotReceive('createCheckoutSession');
         $this->app->instance(PaymentGateway::class, $gateway);

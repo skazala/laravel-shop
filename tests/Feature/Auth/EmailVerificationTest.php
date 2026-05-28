@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\URL;
 test('email verification screen can be rendered', function () {
     $user = User::factory()->unverified()->create();
 
+    /** @var Tests\TestCase $this */
     $response = $this->actingAs($user)->get('/verify-email');
 
     $response->assertStatus(200);
@@ -24,6 +25,7 @@ test('email can be verified', function () {
         ['id' => $user->id, 'hash' => sha1($user->email)]
     );
 
+    /** @var Tests\TestCase $this */
     $response = $this->actingAs($user)->get($verificationUrl);
 
     Event::assertDispatched(Verified::class);
@@ -40,6 +42,7 @@ test('email is not verified with invalid hash', function () {
         ['id' => $user->id, 'hash' => sha1('wrong-email')]
     );
 
+    /** @var Tests\TestCase $this */
     $this->actingAs($user)->get($verificationUrl);
 
     expect($user->fresh()->hasVerifiedEmail())->toBeFalse();

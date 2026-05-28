@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Notification;
 use Livewire\Volt\Volt;
 
 test('reset password link screen can be rendered', function () {
+    /** @var \Tests\TestCase $this */
     $response = $this->get('/forgot-password');
 
     $response
@@ -37,6 +38,7 @@ test('reset password screen can be rendered', function () {
         ->call('sendPasswordResetLink');
 
     Notification::assertSentTo($user, ResetPassword::class, function ($notification) {
+        /** @var \Tests\TestCase $this */
         $response = $this->get('/reset-password/'.$notification->token);
 
         $response

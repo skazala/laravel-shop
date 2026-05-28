@@ -32,6 +32,7 @@ class ReviewAuthorizationTest extends TestCase
     private function makeUserWhoPurchased(Product $product): User
     {
         $user  = User::factory()->create();
+        /** @var Order $order */
         $order = Order::factory()->create([
             'user_id' => $user->id,
             'status'  => OrderStatus::Paid,
@@ -73,6 +74,7 @@ class ReviewAuthorizationTest extends TestCase
     {
         $product = $this->makeProduct();
         $user    = User::factory()->create();
+        /** @var Order $order */
         $order   = Order::factory()->create([
             'user_id' => $user->id,
             'status'  => OrderStatus::Shipped,
@@ -102,6 +104,7 @@ class ReviewAuthorizationTest extends TestCase
     {
         $product = $this->makeProduct();
         $user    = User::factory()->create();
+        /** @var Order $order */
         $order   = Order::factory()->create([
             'user_id' => $user->id,
             'status'  => OrderStatus::Delivered,
@@ -162,6 +165,7 @@ class ReviewAuthorizationTest extends TestCase
     {
         $product = $this->makeProduct();
         $user    = User::factory()->create();
+        /** @var Order $order */
         $order   = Order::factory()->create([
             'user_id' => $user->id,
             'status'  => OrderStatus::Cancelled,
@@ -185,6 +189,7 @@ class ReviewAuthorizationTest extends TestCase
     {
         $product = $this->makeProduct();
         $user    = User::factory()->create();
+        /** @var Order $order */
         $order   = Order::factory()->create([
             'user_id' => $user->id,
             'status'  => OrderStatus::Failed,

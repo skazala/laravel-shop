@@ -4,6 +4,7 @@ use App\Models\User;
 use Livewire\Volt\Volt;
 
 test('login screen can be rendered', function () {
+    /** @var Tests\TestCase $this */
     $response = $this->get('/login');
 
     $response
@@ -24,6 +25,7 @@ test('users can authenticate using the login screen', function () {
         ->assertHasNoErrors()
         ->assertRedirect(route('dashboard', absolute: false));
 
+    /** @var Tests\TestCase $this */
     $this->assertAuthenticated();
 });
 
@@ -40,12 +42,14 @@ test('users can not authenticate with invalid password', function () {
         ->assertHasErrors()
         ->assertNoRedirect();
 
+    /** @var Tests\TestCase $this */
     $this->assertGuest();
 });
 
 test('navigation menu can be rendered', function () {
     $user = User::factory()->create();
 
+    /** @var Tests\TestCase $this */
     $this->actingAs($user);
 
     $response = $this->get('/dashboard');
@@ -58,6 +62,7 @@ test('navigation menu can be rendered', function () {
 test('users can logout', function () {
     $user = User::factory()->create();
 
+    /** @var Tests\TestCase $this */
     $this->actingAs($user);
 
     $component = Volt::test('layout.navigation');
