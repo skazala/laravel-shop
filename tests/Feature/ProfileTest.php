@@ -6,6 +6,7 @@ use Livewire\Volt\Volt;
 test('profile page is displayed', function () {
     $user = User::factory()->create();
 
+    /** @var Tests\TestCase $this */
     $this->actingAs($user);
 
     $response = $this->get('/profile');
@@ -20,6 +21,7 @@ test('profile page is displayed', function () {
 test('profile information can be updated', function () {
     $user = User::factory()->create();
 
+    /** @var Tests\TestCase $this */
     $this->actingAs($user);
 
     $component = Volt::test('profile.update-profile-information-form')
@@ -41,6 +43,7 @@ test('profile information can be updated', function () {
 test('email verification status is unchanged when the email address is unchanged', function () {
     $user = User::factory()->create();
 
+    /** @var Tests\TestCase $this */
     $this->actingAs($user);
 
     $component = Volt::test('profile.update-profile-information-form')
@@ -58,6 +61,7 @@ test('email verification status is unchanged when the email address is unchanged
 test('user can delete their account', function () {
     $user = User::factory()->create();
 
+    /** @var Tests\TestCase $this */
     $this->actingAs($user);
 
     $component = Volt::test('profile.delete-user-form')
@@ -75,6 +79,7 @@ test('user can delete their account', function () {
 test('correct password must be provided to delete account', function () {
     $user = User::factory()->create();
 
+    /** @var Tests\TestCase $this */
     $this->actingAs($user);
 
     $component = Volt::test('profile.delete-user-form')

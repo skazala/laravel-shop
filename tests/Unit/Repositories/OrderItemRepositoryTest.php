@@ -2,10 +2,8 @@
 
 namespace Tests\Unit\Repositories;
 
-use App\Models\Category;
 use App\Models\Order;
 use App\Models\Product;
-use App\Models\User;
 use App\Repositories\OrderItemRepository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -24,7 +22,9 @@ class OrderItemRepositoryTest extends TestCase
 
     public function test_creates_item_linked_to_order(): void
     {
+        /** @var Order $order */
         $order   = Order::factory()->create();
+        /** @var Product $product */
         $product = Product::factory()->create();
 
         $this->repo->createForOrder($order, $product->id, 3, 49.99);
@@ -39,8 +39,11 @@ class OrderItemRepositoryTest extends TestCase
 
     public function test_creates_multiple_items_for_same_order(): void
     {
+        /** @var Order $order */
         $order    = Order::factory()->create();
+        /** @var Product $product1 */
         $product1 = Product::factory()->create();
+        /** @var Product $product2 */
         $product2 = Product::factory()->create();
 
         $this->repo->createForOrder($order, $product1->id, 1, 10.00);

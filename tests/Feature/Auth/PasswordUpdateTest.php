@@ -9,6 +9,7 @@ use Livewire\Volt\Volt;
 test('password can be updated', function () {
     $user = User::factory()->create();
 
+    /** @var \Tests\TestCase $this */
     $this->actingAs($user);
 
     $component = Volt::test('profile.update-password-form')
@@ -27,6 +28,7 @@ test('password can be updated', function () {
 test('correct password must be provided to update password', function () {
     $user = User::factory()->create();
 
+    /** @var \Tests\TestCase $this */
     $this->actingAs($user);
 
     $component = Volt::test('profile.update-password-form')
