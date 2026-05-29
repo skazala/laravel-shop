@@ -23,9 +23,7 @@ RUN composer install \
     --prefer-dist \
     --optimize-autoloader
 
-RUN chown -R www-data:www-data \
-    /var/www/storage \
-    /var/www/bootstrap/cache
+RUN chown -R www-data:www-data /var/www
 
 # Opcache config
 RUN docker-php-ext-enable opcache
@@ -38,5 +36,8 @@ COPY docker/php/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 EXPOSE 9000
+
+USER www-data
+
 ENTRYPOINT ["entrypoint.sh"]
 CMD ["php-fpm"]
