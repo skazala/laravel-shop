@@ -13,6 +13,9 @@ class StripePaymentGateway implements PaymentGateway
     ) {
     }
 
+    /**
+     * @param array<int, array<string, mixed>> $items
+     */
     public function createCheckoutSession(
         User $user,
         array $items,

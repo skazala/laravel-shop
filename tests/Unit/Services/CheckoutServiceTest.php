@@ -23,6 +23,15 @@ class CheckoutServiceTest extends TestCase
 {
     use RefreshDatabase;
 
+    /**
+     * @param array{
+     *     stripe_session_id?: string,
+     *     payment_intent?: string,
+     *     amount_total?: int,
+     *     currency?: string,
+     *     user_id?: int
+     * } $overrides
+     */
     private function makeDto(array $overrides = []): FinalizeOrderDTO
     {
         return new FinalizeOrderDTO(

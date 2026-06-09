@@ -38,6 +38,9 @@ class ProductSeeder extends Seeder
         }
     }
 
+    /**
+     * @return array<string, string[]>
+     */
     private function catalog(): array
     {
         return [

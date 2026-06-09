@@ -7,6 +7,9 @@ use App\Models\User;
 use App\OrderStatus;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+/**
+ * @extends Factory<\App\Models\Order>
+ */
 class OrderFactory extends Factory
 {
     protected $model = Order::class;

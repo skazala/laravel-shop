@@ -6,6 +6,9 @@ use App\Models\Cart;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+/**
+ * @extends Factory<\App\Models\Cart>
+ */
 class CartFactory extends Factory
 {
     protected $model = Cart::class;
