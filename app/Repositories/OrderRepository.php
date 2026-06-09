@@ -23,6 +23,9 @@ class OrderRepository implements OrderRepositoryInterface
         return Order::where('stripe_session_id', $sessionId)->exists();
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public function create(array $data): Order
     {
         return Order::create($data);

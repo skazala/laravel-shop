@@ -40,6 +40,9 @@ class CartService
         return array_sum(session(self::SESSION_CART_KEY, []));
     }
 
+    /**
+     * @return array<int, CartItemDTO>
+     */
     public function getSessionItems(): array
     {
         return session(self::SESSION_CART_KEY, []);
@@ -118,6 +121,9 @@ class CartService
         return $this->getItemsFromSession();
     }
 
+    /**
+     * @return array<int, CartItemDTO>
+     */
     protected function getItemsForUser(User $user): array
     {
         $cart = $user->cart()->with('items.product')->first();
@@ -135,8 +141,12 @@ class CartService
             ->all();
     }
 
+    /**
+     * @return array<int, CartItemDTO>
+     */
     protected function getItemsFromSession(): array
     {
+        /** @var array<int, int> $sessionCart */
         $sessionCart = session(self::SESSION_CART_KEY, []);
 
         if (empty($sessionCart)) {
@@ -188,6 +198,9 @@ class CartService
         session([self::SESSION_CART_KEY => $cart]);
     }
 
+    /**
+     * @return array{type: string, id: int}
+     */
     protected function parseKey(string $key): array
     {
         if (str_starts_with($key, 'session-')) {

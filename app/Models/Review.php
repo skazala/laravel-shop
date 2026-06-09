@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @use HasFactory<\Database\Factories\ReviewFactory>
+ */
 class Review extends Model
 {
     use HasFactory;

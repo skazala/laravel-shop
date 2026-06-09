@@ -13,7 +13,7 @@ class CartMergeTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_guest_cart_is_merged_into_user_cart_on_login()
+    public function test_guest_cart_is_merged_into_user_cart_on_login(): void
     {
         $productA = Product::factory()->create();
         $productB = Product::factory()->create();
@@ -58,7 +58,7 @@ class CartMergeTest extends TestCase
         $this->assertEmpty(session('cart'));
     }
 
-    public function test_guest_cart_is_merged_on_registration()
+    public function test_guest_cart_is_merged_on_registration(): void
     {
         $product = Product::factory()->create();
 

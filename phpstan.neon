@@ -11,7 +11,7 @@ parameters:
         - database
         - tests
 
-    level: 5
+    level: 6
 
     parallel:
         maximumNumberOfProcesses: 1

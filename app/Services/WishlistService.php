@@ -34,11 +34,17 @@ class WishlistService
             ->exists();
     }
 
+    /**
+     * @return Collection<int, int>
+     */
     public function wishlistedProductIds(User $user): Collection
     {
         return $user->wishlists()->pluck('product_id');
     }
 
+    /**
+     * @return Collection<int, \App\Models\Product>
+     */
     public function getForUser(User $user): Collection
     {
         return $user->wishlists()

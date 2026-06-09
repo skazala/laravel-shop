@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Cache;
 
 class ProductRepository implements ProductRepositoryInterface
 {
+    /**
+     * @return LengthAwarePaginator<int, Product>
+     */
     public function paginateByCategory(
         ?string $categorySlug,
         int $perPage = 10,
