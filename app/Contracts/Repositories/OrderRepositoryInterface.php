@@ -14,6 +14,7 @@ interface OrderRepositoryInterface
      */
     public function allForUser(User $user): Collection;
     public function existsByStripeSessionId(string $sessionId): bool;
+    /** @param array<string,mixed> $data */
     public function create(array $data): Order;
     public function updateStatus(Order $order, OrderStatus $status): void;
 }

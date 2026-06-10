@@ -6,5 +6,8 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 interface ProductRepositoryInterface
 {
+    /**
+     * @return LengthAwarePaginator<int, \App\Models\Product>
+     */
     public function paginateByCategory(?string $categorySlug, int $perPage = 10, int $page = 1): LengthAwarePaginator;
 }

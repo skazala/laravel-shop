@@ -13,7 +13,7 @@ final class ProductViewDTO
     ) {
     }
 
-    public function __get(string $key)
+    public function __get(string $key): mixed
     {
         return $this->product->{$key};
     }

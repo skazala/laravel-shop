@@ -7,6 +7,7 @@ use App\Models\Review;
 use App\Services\CartService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\View\View;
 use Livewire\Component;
 
 class ProductDetail extends Component
@@ -77,7 +78,7 @@ class ProductDetail extends Component
         }
     }
 
-    public function render()
+    public function render(): View
     {
         return view('livewire.product-detail');
     }
