@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Services\WishlistService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 use Livewire\Component;
 
 class WishlistButton extends Component
@@ -34,7 +35,7 @@ class WishlistButton extends Component
         $this->dispatch('wishlist-updated');
     }
 
-    public function render()
+    public function render(): View
     {
         return view('livewire.wishlist-button');
     }

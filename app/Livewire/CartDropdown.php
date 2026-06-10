@@ -5,11 +5,13 @@ namespace App\Livewire;
 use App\DTO\CartItemDTO;
 use App\Services\CartService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 class CartDropdown extends Component
 {
+    /** @var array<string, string> */
     protected $listeners = ['cart-updated' => '$refresh'];
 
     #[Computed]
@@ -21,9 +23,15 @@ class CartDropdown extends Component
             return $cart ? $cart->items()->sum('quantity') : 0;
         }
 
-        return collect(session('cart', []))->sum();
+        /** @var array<int,int> $sessionCart */
+        $sessionCart = session('cart', []);
+
+        return collect($sessionCart)->sum();
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     #[Computed]
     public function items(): array
     {
@@ -33,7 +41,7 @@ class CartDropdown extends Component
         );
     }
 
-    public function render()
+    public function render(): View
     {
         return view('livewire.cart-dropdown');
     }

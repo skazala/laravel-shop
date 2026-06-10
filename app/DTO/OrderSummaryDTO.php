@@ -8,6 +8,9 @@ use Illuminate\Support\Collection;
 
 final class OrderSummaryDTO
 {
+    /**
+     * @param Collection<int, \App\DTO\OrderItemDTO> $items
+     */
     public function __construct(
         public readonly int $id,
         public readonly OrderStatus $status,

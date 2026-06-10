@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 use App\DTO\FinalizeOrderDTO;
 use App\Services\CheckoutService;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Stripe\Exception\SignatureVerificationException;
 use Stripe\Webhook;
 use UnexpectedValueException;
 
 class StripeWebhookController
 {
-    public function __invoke(Request $request, CheckoutService $checkout)
+    public function __invoke(Request $request, CheckoutService $checkout): JsonResponse
     {
         try {
             $event = Webhook::constructEvent(

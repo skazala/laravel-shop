@@ -5,11 +5,14 @@ namespace App\Livewire;
 use App\DTO\CartItemDTO;
 use App\Services\CartService;
 use App\Services\CheckoutService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 use Livewire\Component;
 
 class Cart extends Component
 {
+    /** @var array<int, array<string, mixed>> */
     public array $items = [];
 
     /** @var array<string,int> */
@@ -40,7 +43,7 @@ class Cart extends Component
         }
     }
 
-    public function updatedQuantities($value, string $key): void
+    public function updatedQuantities(mixed $value, string $key): void
     {
         $this->cartService()->updateQuantity($key, (int) $value);
 
@@ -56,12 +59,12 @@ class Cart extends Component
         $this->dispatch('cart-updated');
     }
 
-    public function render()
+    public function render(): View
     {
         return view('livewire.cart');
     }
 
-    public function checkout()
+    public function checkout(): RedirectResponse
     {
         if (! Auth::check()) {
             session(['url.intended' => route('cart')]);

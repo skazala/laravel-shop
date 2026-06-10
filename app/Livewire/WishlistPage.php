@@ -5,10 +5,12 @@ namespace App\Livewire;
 use App\Services\CartService;
 use App\Services\WishlistService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 use Livewire\Component;
 
 class WishlistPage extends Component
 {
+    /** @var array<string, string> */
     protected $listeners = ['wishlist-updated' => '$refresh'];
 
     public function addToCart(int $productId): void
@@ -28,7 +30,7 @@ class WishlistPage extends Component
         $this->dispatch('wishlist-updated');
     }
 
-    public function render()
+    public function render(): View
     {
         $products = app(WishlistService::class)->getForUser(Auth::user());
 

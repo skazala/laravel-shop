@@ -9,6 +9,7 @@ use App\Jobs\OrderShippedJob;
 use App\Models\Order;
 use App\OrderStatus;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 use Livewire\Component;
 
 class Orders extends Component
@@ -41,7 +42,7 @@ class Orders extends Component
         abort_unless(Auth::user()?->is_admin, 403);
     }
 
-    public function render()
+    public function render(): View
     {
         $orders = $this->orderRepo
             ->allForUser(Auth::user())

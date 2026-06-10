@@ -18,21 +18,22 @@ class Products extends Component
 
     protected ProductRepositoryInterface $productRepo;
 
+    /** @var array<string, string> */
     protected $listeners = [
         'cart-updated' => '$refresh',
     ];
 
-    public function boot(ProductRepositoryInterface $productRepo)
+    public function boot(ProductRepositoryInterface $productRepo): void
     {
         $this->productRepo = $productRepo;
     }
 
-    public function mount()
+    public function mount(): void
     {
         $this->category = request()->query('category');
     }
 
-    public function updatingCategory()
+    public function updatingCategory(): void
     {
         $this->resetPage();
     }

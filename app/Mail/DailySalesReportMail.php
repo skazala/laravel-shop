@@ -14,6 +14,9 @@ class DailySalesReportMail extends Mailable
     use Queueable;
     use SerializesModels;
 
+    /**
+     * @param Collection<int, \App\Models\OrderItem> $items
+     */
     public function __construct(
         public Collection $items
     ) {

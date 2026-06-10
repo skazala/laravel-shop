@@ -14,7 +14,7 @@ class LowStockJob implements ShouldQueue
 
     public function __construct(public Product $product) {}
 
-    public function handle()
+    public function handle(): void
     {
         Mail::to(config('mail.admin_email'))
             ->send(new LowStockMail($this->product));

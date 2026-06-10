@@ -14,6 +14,9 @@ class ViewLogs extends Page
     protected static ?string $navigationLabel = 'Logs';
     protected static ?string $title = 'Application Logs';
 
+    /**
+     * @return array<int, array{datetime: string, level: string, message: string, path: string|null}>
+     */
     public function getLogs(): array
     {
         $logFile = storage_path('logs/laravel.log');

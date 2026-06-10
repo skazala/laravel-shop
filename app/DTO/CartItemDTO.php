@@ -51,6 +51,9 @@ final class CartItemDTO
         return $this->price * $this->quantity;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         return [
